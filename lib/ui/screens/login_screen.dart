@@ -22,9 +22,12 @@ class LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       if (!mounted) return; // Check if the widget is still mounted
       Navigator.pushReplacementNamed(context, '/home');
-    } else if (mounted) { // Verifica si el widget está montado
+    } else if (mounted) {
+      // Verifica si el widget está montado
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inicio de sesión fallido. Verifica tus credenciales.')),
+        const SnackBar(
+            content:
+                Text('Inicio de sesión fallido. Verifica tus credenciales.')),
       );
     }
   }
@@ -35,7 +38,8 @@ class LoginScreenState extends State<LoginScreen> {
       if (!mounted) return; // Check if the widget is still mounted
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      if (mounted) { // Verificar si el widget está montado
+      if (mounted) {
+        // Verificar si el widget está montado
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al iniciar sesión con Google.')),
         );
@@ -54,9 +58,16 @@ class LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Añadir el logo aquí
+            Image.asset(
+              'assets/sunshine.png', // Ruta de tu logo
+              height: 100, // Ajusta el tamaño según sea necesario
+            ),
+            const SizedBox(height: 20), // Espacio entre el logo y el formulario
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Correo electrónico'),
+              decoration:
+                  const InputDecoration(labelText: 'Correo electrónico'),
               keyboardType: TextInputType.emailAddress,
             ),
             TextField(
@@ -80,7 +91,8 @@ class LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const RegisterScreen()),
                 );
               },
               child: const Text('¿No tienes una cuenta? Regístrate aquí'),
