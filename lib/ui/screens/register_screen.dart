@@ -59,7 +59,7 @@ class RegisterScreenState extends State<RegisterScreen> {
           );
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => TaskScreen()),
+            MaterialPageRoute(builder: (context) => const TaskScreen()),
           );
         }
       }
