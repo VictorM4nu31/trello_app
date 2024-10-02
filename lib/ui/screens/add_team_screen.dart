@@ -38,7 +38,7 @@ class AddTeamScreenState extends State<AddTeamScreen> {
     if (_teamName.isNotEmpty && _projectDescription.isNotEmpty) {
       await _teamService.createTeam(_teamName, _projectDescription, _selectedColor); // Pasamos el color seleccionado
       if (mounted) { // Verificar si el widget está montado
-        Navigator.pop(context, true); // Regresar a la pantalla anterior y pasar un valor true
+        Navigator.pop(context); // Regresar a la pantalla anterior
       } 
     } else {
       if (mounted) { // Verificar si el widget está montado

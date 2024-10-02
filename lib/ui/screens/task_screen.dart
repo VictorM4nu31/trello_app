@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_tareas/services/auth_service.dart'; // Importa AuthService
 import 'package:logger/logger.dart'; // Importa Logger
-import 'add_team_screen.dart'; // Importa la nueva pantalla para agregar equipo
+import 'add_team_screen.dart'; 
+import 'add_task_screen.dart';// Importa la nueva pantalla para agregar equipo
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -98,7 +99,7 @@ class TaskScreenState extends State<TaskScreen> {
                         MaterialPageRoute(
                             builder: (context) => const AddTeamScreen()), // Navegar a la nueva pantalla
                       ).then((result) {
-                        if (result == true) { // Verificar si se agregó un nuevo equipo
+                        if (result != null) { // Verificar si se devolvió un teamId
                           _fetchTeams(); // Volver a cargar los equipos
                         }
                       });
@@ -137,9 +138,20 @@ class TaskScreenState extends State<TaskScreen> {
                                 ),
                                 trailing: ElevatedButton(
                                   onPressed: () {
-                                    // Lógica para ver el equipo
-                                  },
-                                  child: const Text('Ver'),
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddTaskScreen(
+                                          team: {
+                                            'id': team['id'], // Asegúrate de pasar el ID del equipo
+                                            'name': team['name'],
+                                            'members': team['members'] ?? [],
+                                            'color': team['color'],
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }, child: null,
                                 ),
                               ),
                             ),
