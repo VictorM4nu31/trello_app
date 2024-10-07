@@ -15,11 +15,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
+  List<String> teamMembers = []; // Asegúrate de inicializar la lista
 
   @override
   void initState() {
     super.initState();
     _fetchTasks();
+    _fetchTeamMembers(); // Llamar a la función para obtener los miembros del equipo
   }
 
   Future<void> _fetchTasks() async {
@@ -153,6 +155,73 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  void _addMember() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String email = '';
+        return AlertDialog(
+          title: Text('Añadir Miembro'),
+          content: TextField(
+            onChanged: (value) {
+              email = value;
+            },
+            decoration: InputDecoration(hintText: "Ingrese el correo del miembro"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Añadir'),
+              onPressed: () async {
+                if (email.isNotEmpty) {
+                  try {
+                    final userSnapshot = await _firestore
+                        .collection('users')
+                        .where('email', isEqualTo: email)
+                        .get();
+
+                    if (userSnapshot.docs.isNotEmpty) {
+                      final userId = userSnapshot.docs.first.id;
+                      await _firestore.collection('teams').doc(widget.team['id']).update({
+                        'members': FieldValue.arrayUnion([userId])
+                      });
+                      _fetchTeamMembers(); // Refrescar la lista de miembros
+                    }
+                  } catch (e) {
+                    print('Error adding member: $e');
+                  }
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _fetchTeamMembers() async {
+    try {
+      final snapshot = await _firestore
+          .collection('teams')
+          .doc(widget.team['id'])
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          teamMembers = List<String>.from(snapshot.data()?['members'] ?? []);
+        });
+      }
+    } catch (e) {
+      print('Error fetching team members: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final members = widget.team['members'] ?? [];
@@ -178,37 +247,51 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
             SizedBox(height: 20),
             Text('Tareas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            if (tasks.isNotEmpty)
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(tasks[index]['name']),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name']),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => _deleteTask(tasks[index]['id']),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )
-            else
-              ElevatedButton(
-                onPressed: _addTask,
-                child: Text('Añadir Tarea'),
-              ),
+            Expanded(
+              child: tasks.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(tasks[index]['name']),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name']),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () => _deleteTask(tasks[index]['id']),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  : Center(child: Text('No hay tareas')),
+            ),
           ],
         ),
       ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _addMember,
+            child: Icon(Icons.person_add),
+            heroTag: null,
+          ),
+          SizedBox(height: 10),
+          FloatingActionButton(
+            onPressed: _addTask,
+            child: Icon(Icons.add),
+            heroTag: null,
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

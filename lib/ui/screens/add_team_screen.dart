@@ -36,7 +36,7 @@ class AddTeamScreenState extends State<AddTeamScreen> {
 
   Future<void> _createTeam() async {
     if (_teamName.isNotEmpty && _projectDescription.isNotEmpty) {
-      await _teamService.createTeam(_teamName, _projectDescription, _selectedColor); // Pasamos el color seleccionado
+      await _teamService.createTeam(_teamName, _projectDescription, _selectedColor, []); // Pasamos el color seleccionado y una lista vacía de miembros
       if (mounted) { // Verificar si el widget está montado
         Navigator.pop(context); // Regresar a la pantalla anterior
       } 

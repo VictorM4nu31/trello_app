@@ -9,7 +9,7 @@ class TeamService {
   final Logger _logger = Logger();
 
   // Crear un nuevo equipo
-  Future<void> createTeam(String teamName, String projectDescription, Color color) async { // {{ edit_5 }}
+  Future<void> createTeam(String teamName, String projectDescription, Color color, List<String> selectedMembers) async { // {{ edit_5 }}
     try {
       User? currentUser = _auth.currentUser;
       if (currentUser != null) {
