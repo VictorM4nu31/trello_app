@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -14,11 +15,14 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final ImagePicker _picker = ImagePicker();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  String? _photoUrl;
   File? _profileImage;
 
   @override
@@ -34,12 +38,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _nameController.text = userProfile['name'] ?? '';
       _surnameController.text = userProfile['surname'] ?? '';
       _emailController.text = user.email ?? '';
-      // Cargar la imagen de perfil si está disponible
+      _photoUrl = userProfile['photoUrl'];
+      setState(() {});
     }
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
@@ -51,12 +57,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     User? user = _auth.currentUser;
     if (user != null) {
       try {
+        if (_profileImage != null) {
+          final ref = _storage.ref().child('profile_images/${user.uid}');
+          await ref.putFile(_profileImage!);
+          _photoUrl = await ref.getDownloadURL();
+        }
+
         await user.updateEmail(_emailController.text);
         await _firestore.collection('users').doc(user.uid).update({
           'name': _nameController.text,
           'surname': _surnameController.text,
+          'photoUrl': _photoUrl,
         });
-        // Aquí puedes agregar la lógica para subir la nueva imagen a Firebase Storage si es necesario
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil actualizado con éxito')),
         );
@@ -82,13 +94,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               onTap: _pickImage,
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                child: _profileImage == null ? const Icon(Icons.add_a_photo, size: 50) : null,
+                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : (_photoUrl != null ? NetworkImage(_photoUrl!) : null),
+                child: _profileImage == null && _photoUrl == null ? const Icon(Icons.add, size: 50) : null,
               ),
             ),
-            const SizedBox(height: 8.0),
-            const Text('Cambiar foto de perfil'),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 16),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Nombre'),
@@ -101,22 +111,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Correo Electrónico'),
             ),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Nueva Contraseña'),
+              obscureText: true,
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                _updateProfile();
-              },
+              onPressed: _updateProfile,
               child: const Text('Actualizar Perfil'),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-extension on ImagePicker {
-  getImage({required ImageSource source}) {
-    return ImagePicker().pickImage(source: source);
   }
 }

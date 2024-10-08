@@ -5,7 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_tareas/services/auth_service.dart'; // Importa AuthService
 import 'package:logger/logger.dart'; // Importa Logger
-import 'add_task_screen.dart';// Importa la nueva pantalla para agregar equipo
+import 'package:app_tareas/ui/screens/add_task_screen.dart';// Importa la nueva pantalla para agregar equipo
+import 'package:app_tareas/ui/screens/add_team_screen.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -64,23 +65,32 @@ class TaskScreenState extends State<TaskScreen> {
     if (user != null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Tareas'),
+          title: Row(
+            children: [
+              const Text('Bienvenido, '),
+              Text(
+                user.displayName?.isNotEmpty == true ? user.displayName! : 'Usuario',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
           actions: [
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserTasksScreen(userId: user.uid),
+                    builder: (context) => UserTasksScreen(userId: _currentUser!.uid),
                   ),
                 );
               },
               child: CircleAvatar(
-                backgroundImage: NetworkImage(user.photoURL ?? 'default_image_url'), // Cambia esto por la URL de la foto de perfil
+                backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+                child: user.photoURL == null ? const Icon(Icons.person) : null,
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.edit), // Icono de editar perfil
+              icon: const Icon(Icons.edit),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -176,6 +186,16 @@ class TaskScreenState extends State<TaskScreen> {
                       );
                     },
                   ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddTeamScreen()),
+            );
+          },
+          child: const Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     } else {
       return const Center(child: CircularProgressIndicator());
