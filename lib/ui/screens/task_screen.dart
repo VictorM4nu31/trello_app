@@ -42,7 +42,7 @@ class TaskScreenState extends State<TaskScreen> {
 
         setState(() {
           _teams = snapshot.docs.map((doc) {
-            var data = doc.data() as Map<String, dynamic>;
+            var data = doc.data();
             return {
               'id': doc.id, // Asegúrate de incluir el ID del documento
               ...data,

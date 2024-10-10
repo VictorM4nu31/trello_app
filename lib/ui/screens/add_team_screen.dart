@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_tareas/services/auth_service.dart';
 import 'package:app_tareas/services/team_service.dart';
 import 'package:app_tareas/models/user_profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // {{ edit_1 }}
 
 class AddTeamScreen extends StatefulWidget {
   const AddTeamScreen({super.key});
@@ -18,7 +19,7 @@ class AddTeamScreenState extends State<AddTeamScreen> {
   String _teamName = '';
   String _projectDescription = '';
   Color _selectedColor = Colors.blue; // Color por defecto
-  List<UserProfile> _selectedMembers = []; // Define la lista de miembros seleccionados
+  final List<UserProfile> _selectedMembers = []; // Define la lista de miembros seleccionados
 
   // Función para buscar usuarios por nombre o correo electrónico
   void _searchUsers() async {
@@ -37,12 +38,20 @@ class AddTeamScreenState extends State<AddTeamScreen> {
   // Función para crear el equipo con miembros seleccionados
   Future<void> _createTeam() async {
     if (_teamName.isNotEmpty && _projectDescription.isNotEmpty) {
-      await _teamService.createTeam(
+      final teamId = await _teamService.createTeam(
         _teamName,
         _projectDescription,
         _selectedColor,
         _selectedMembers.map((member) => member.uid).toList(), // Lista de IDs de miembros
       );
+
+      // Guardar los miembros en el equipo
+      if (teamId != null) {
+        await _firestore.collection('teams').doc(teamId).update({
+          'members': FieldValue.arrayUnion(_selectedMembers.map((member) => member.uid).toList()),
+        });
+      }
+
       if (mounted) {
         Navigator.pop(context, true); // Devuelve true para indicar que se ha creado un equipo
       }
@@ -134,7 +143,7 @@ class AddTeamScreenState extends State<AddTeamScreen> {
                 },
               ),
             ),
-            Text('Miembros seleccionados:'),
+            const Text('Miembros seleccionados:'),
             ListView.builder(
               shrinkWrap: true,
               itemCount: _selectedMembers.length,
@@ -175,4 +184,4 @@ class AddTeamScreenState extends State<AddTeamScreen> {
   }
 }
 
-
+final FirebaseFirestore _firestore = FirebaseFirestore.instance; // {{ edit_1 }}

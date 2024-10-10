@@ -6,13 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({Key? key, User? currentUser, required String userId}) : super(key: key);
+  const EditProfileScreen({super.key, User? currentUser, required String userId});
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  EditProfileScreenState createState() => EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -63,19 +63,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _photoUrl = await ref.getDownloadURL();
         }
 
-        await user.updateEmail(_emailController.text);
+        await user.verifyBeforeUpdateEmail(_emailController.text);
         await _firestore.collection('users').doc(user.uid).update({
           'name': _nameController.text,
           'surname': _surnameController.text,
           'photoUrl': _photoUrl,
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado con éxito')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Perfil actualizado con éxito')),
+          );
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al actualizar el perfil')),
-        );
+        if (mounted) { // Verifica si el widget está montado
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error al actualizar el perfil')),
+          );
+        }
       }
     }
   }

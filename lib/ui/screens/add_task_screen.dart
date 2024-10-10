@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
+
+final logger = Logger();
 
 class AddTaskScreen extends StatefulWidget {
   final Map<String, dynamic> team;
 
-  const AddTaskScreen({required this.team, Key? key}) : super(key: key);
+  const AddTaskScreen({required this.team, super.key});
 
   @override
-  _AddTaskScreenState createState() => _AddTaskScreenState();
+  AddTaskScreenState createState() => AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
-  List<String> teamMembers = []; // Asegúrate de inicializar la lista
+  List<Map<String, dynamic>> teamMembers = []; // Cambiar a una lista de mapas para incluir nombre y foto
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching tasks: $e');
+      logger.e('Error fetching tasks: $e');
     }
   }
 
@@ -54,7 +57,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         String newTask = '';
         String newDescription = ''; // Nueva variable para la descripción
         return AlertDialog(
-          title: Text('Añadir Tarea'),
+          title: const Text('Añadir Tarea'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -62,25 +65,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 onChanged: (value) {
                   newTask = value;
                 },
-                decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
+                decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
               ),
               TextField(
                 onChanged: (value) {
                   newDescription = value; // Captura la descripción
                 },
-                decoration: InputDecoration(hintText: "Ingrese la descripción"),
+                decoration: const InputDecoration(hintText: "Ingrese la descripción"),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Añadir'),
+              child: const Text('Añadir'),
               onPressed: () async {
                 if (newTask.isNotEmpty) {
                   try {
@@ -103,9 +106,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       });
                     }
                   } catch (e) {
-                    print('Error adding task: $e');
+                    logger.e('Error adding task: $e');
                   }
                 }
+                if (!context.mounted) return; // Cambiar a context.mounted
                 Navigator.of(context).pop();
               },
             ),
@@ -122,7 +126,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         String updatedTask = currentName;
         String updatedDescription = currentDescription; // Nueva variable para la descripción
         return AlertDialog(
-          title: Text('Actualizar Tarea'),
+          title: const Text('Actualizar Tarea'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -130,27 +134,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 onChanged: (value) {
                   updatedTask = value;
                 },
-                decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
+                decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
                 controller: TextEditingController(text: currentName),
               ),
               TextField(
                 onChanged: (value) {
                   updatedDescription = value; // Captura la nueva descripción
                 },
-                decoration: InputDecoration(hintText: "Ingrese la nueva descripción"),
+                decoration: const InputDecoration(hintText: "Ingrese la nueva descripción"),
                 controller: TextEditingController(text: currentDescription),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Actualizar'),
+              child: const Text('Actualizar'),
               onPressed: () async {
                 if (updatedTask.isNotEmpty) {
                   try {
@@ -167,9 +171,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       tasks[index]['description'] = updatedDescription; // Actualiza la descripción en la lista
                     });
                   } catch (e) {
-                    print('Error updating task: $e');
+                    logger.e('Error updating task: $e');
                   }
                 }
+                if (!context.mounted) return; // Cambiar a context.mounted
                 Navigator.of(context).pop();
               },
             ),
@@ -190,7 +195,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         tasks.removeWhere((task) => task['id'] == taskId);
       });
     } catch (e) {
-      print('Error deleting task: $e');
+      logger.e('Error deleting task: $e');
     }
   }
 
@@ -200,22 +205,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       builder: (BuildContext context) {
         String memberName = '';
         return AlertDialog(
-          title: Text('Añadir Miembro'),
+          title: const Text('Añadir Miembro'),
           content: TextField(
             onChanged: (value) {
               memberName = value;
             },
-            decoration: InputDecoration(hintText: "Ingrese el nombre del miembro"),
+            decoration: const InputDecoration(hintText: "Ingrese el nombre del miembro"),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Añadir'),
+              child: const Text('Añadir'),
               onPressed: () async {
                 if (memberName.isNotEmpty) {
                   try {
@@ -233,9 +238,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       _fetchTeamMembers();  // Refrescar la lista de miembros
                     }
                   } catch (e) {
-                    print('Error adding member: $e');
+                    logger.e('Error adding member: $e');
                   }
                 }
+                if (!context.mounted) return; // Cambiar a context.mounted
                 Navigator.of(context).pop();
               },
             ),
@@ -253,12 +259,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           .get();
 
       if (snapshot.exists) {
+        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
+        final memberData = await Future.wait(memberIds.map((id) async {
+          final userDoc = await _firestore.collection('users').doc(id).get();
+          return {
+            'id': id,
+            'name': userDoc['name'],
+            'photoUrl': userDoc['photoUrl'],
+          };
+        }));
+
         setState(() {
-          teamMembers = List<String>.from(snapshot.data()?['members'] ?? []);
+          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
         });
       }
     } catch (e) {
-      print('Error fetching team members: $e');
+      logger.e('Error fetching team members: $e');
     }
   }
 
@@ -273,18 +289,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Miembros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Miembros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ListView.builder(
               shrinkWrap: true,
               itemCount: teamMembers.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(teamMembers[index]),
+                  leading: teamMembers[index]['photoUrl'] != null
+                      ? CircleAvatar(
+                          backgroundImage: NetworkImage(teamMembers[index]['photoUrl']),
+                        )
+                      : null,
+                  title: Text(teamMembers[index]['name']),
                 );
               },
             ),
-            SizedBox(height: 20),
-            Text('Tareas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            const Text('Tareas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Expanded(
               child: tasks.isNotEmpty
                   ? ListView.builder(
@@ -297,11 +318,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.edit),
+                                icon: const Icon(Icons.edit),
                                 onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name'], tasks[index]['description']),
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete),
+                                icon: const Icon(Icons.delete),
                                 onPressed: () => _deleteTask(tasks[index]['id']),
                               ),
                             ],
@@ -309,7 +330,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         );
                       },
                     )
-                  : Center(child: Text('No hay tareas')),
+                  : const Center(child: Text('No hay tareas')),
             ),
           ],
         ),
@@ -319,14 +340,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         children: [
           FloatingActionButton(
             onPressed: _addMember,
-            child: Icon(Icons.person_add),
             heroTag: null,
+            child: const Icon(Icons.person_add),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           FloatingActionButton(
             onPressed: _addTask,
-            child: Icon(Icons.add),
             heroTag: null,
+            child: const Icon(Icons.add),
           ),
         ],
       ),
@@ -334,6 +355,3 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 }
-
-
-
