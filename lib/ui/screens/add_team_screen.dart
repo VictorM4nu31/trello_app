@@ -1,5 +1,3 @@
-// lib/screens/add_team_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:app_tareas/services/auth_service.dart';
 import 'package:app_tareas/services/team_service.dart';
@@ -20,7 +18,9 @@ class AddTeamScreenState extends State<AddTeamScreen> {
   String _teamName = '';
   String _projectDescription = '';
   Color _selectedColor = Colors.blue; // Color por defecto
+  List<UserProfile> _selectedMembers = []; // Define la lista de miembros seleccionados
 
+  // Función para buscar usuarios por nombre o correo electrónico
   void _searchUsers() async {
     if (_searchQuery.isNotEmpty) {
       final results = await _authService.searchUsersByNameOrEmail(_searchQuery);
@@ -34,14 +34,20 @@ class AddTeamScreenState extends State<AddTeamScreen> {
     }
   }
 
+  // Función para crear el equipo con miembros seleccionados
   Future<void> _createTeam() async {
     if (_teamName.isNotEmpty && _projectDescription.isNotEmpty) {
-      await _teamService.createTeam(_teamName, _projectDescription, _selectedColor, []); // Pasamos el color seleccionado y una lista vacía de miembros
-      if (mounted) { // Verificar si el widget está montado
-        Navigator.pop(context); // Regresar a la pantalla anterior
-      } 
+      await _teamService.createTeam(
+        _teamName,
+        _projectDescription,
+        _selectedColor,
+        _selectedMembers.map((member) => member.uid).toList(), // Lista de IDs de miembros
+      );
+      if (mounted) {
+        Navigator.pop(context, true); // Devuelve true para indicar que se ha creado un equipo
+      }
     } else {
-      if (mounted) { // Verificar si el widget está montado
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, completa todos los campos.')),
         );
@@ -52,6 +58,15 @@ class AddTeamScreenState extends State<AddTeamScreen> {
   void _selectColor(Color color) {
     setState(() {
       _selectedColor = color;
+    });
+  }
+
+  // Función para agregar un miembro al equipo
+  void _addMemberToTeam(UserProfile user) {
+    setState(() {
+      if (!_selectedMembers.contains(user)) {
+        _selectedMembers.add(user); // Agregar solo si no está ya en la lista
+      }
     });
   }
 
@@ -113,11 +128,23 @@ class AddTeamScreenState extends State<AddTeamScreen> {
                         ? CircleAvatar(backgroundImage: NetworkImage(user.photoUrl!))
                         : null,
                     onTap: () {
-                      // Agregar lógica para seleccionar el miembro
+                      _addMemberToTeam(user); // Llama a la función para agregar el usuario
                     },
                   );
                 },
               ),
+            ),
+            Text('Miembros seleccionados:'),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: _selectedMembers.length,
+              itemBuilder: (context, index) {
+                final member = _selectedMembers[index];
+                return ListTile(
+                  title: Text(member.name),
+                  subtitle: Text(member.surname),
+                );
+              },
             ),
             ElevatedButton(
               onPressed: _createTeam,
@@ -147,3 +174,5 @@ class AddTeamScreenState extends State<AddTeamScreen> {
     );
   }
 }
+
+

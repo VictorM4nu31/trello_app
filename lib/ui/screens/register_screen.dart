@@ -3,9 +3,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../services/auth_service.dart'; // Importa tu AuthService
 import 'task_screen.dart'; // Importa TaskScreen
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importa Firestore
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key}); // Convert 'key' to a super parameter
+  const RegisterScreen({super.key});
 
   @override
   RegisterScreenState createState() => RegisterScreenState();
@@ -13,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 
 class RegisterScreenState extends State<RegisterScreen> {
   final _authService = AuthService(); // Instancia del servicio de autenticación
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -47,13 +49,14 @@ class RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (user != null) {
-        await _authService.saveUserProfile(
-          user.uid,
-          _nameController.text,
-          _surnameController.text,
-          _profileImage,
-        );
-        if (mounted) { // Verifica si el widget está montado
+        // Guarda el perfil del usuario en Firestore
+        await _firestore.collection('users').doc(user.uid).set({
+          'name': _nameController.text,
+          'surname': _surnameController.text,
+          'email': _emailController.text,
+        });
+
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Usuario registrado con éxito')),
           );
@@ -163,3 +166,4 @@ class RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+

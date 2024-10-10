@@ -23,6 +23,8 @@ class UserProfile {
     );
   }
 
+  String? get email => null;
+
   // Método para convertir UserProfile a un mapa para guardar en Firestore
   Map<String, dynamic> toMap() {
     return {

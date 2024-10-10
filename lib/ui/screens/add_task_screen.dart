@@ -37,7 +37,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         setState(() {
           tasks = snapshot.docs.map((doc) => {
             'id': doc.id,
-            'name': doc['name']
+            'name': doc['name'],
+            'description': doc['description'] // Agregar descripción
           }).toList();
         });
       }
@@ -51,13 +52,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       builder: (BuildContext context) {
         String newTask = '';
+        String newDescription = ''; // Nueva variable para la descripción
         return AlertDialog(
           title: Text('Añadir Tarea'),
-          content: TextField(
-            onChanged: (value) {
-              newTask = value;
-            },
-            decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  newTask = value;
+                },
+                decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
+              ),
+              TextField(
+                onChanged: (value) {
+                  newDescription = value; // Captura la descripción
+                },
+                decoration: InputDecoration(hintText: "Ingrese la descripción"),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -75,9 +88,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     if (user != null) {
                       final docRef = await _firestore
                           .collection('tasks')
-                          .add({'name': newTask, 'teamId': widget.team['id'], 'userId': user.uid});
+                          .add({
+                        'name': newTask,
+                        'description': newDescription, // Agregar descripción
+                        'teamId': widget.team['id'],
+                        'userId': user.uid
+                      });
                       setState(() {
-                        tasks.add({'id': docRef.id, 'name': newTask});
+                        tasks.add({
+                          'id': docRef.id,
+                          'name': newTask,
+                          'description': newDescription // Guardar descripción
+                        });
                       });
                     }
                   } catch (e) {
@@ -93,19 +115,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  void _updateTask(String taskId, String currentName) {
+  void _updateTask(String taskId, String currentName, String currentDescription) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
+        String updatedDescription = currentDescription; // Nueva variable para la descripción
         return AlertDialog(
           title: Text('Actualizar Tarea'),
-          content: TextField(
-            onChanged: (value) {
-              updatedTask = value;
-            },
-            decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
-            controller: TextEditingController(text: currentName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  updatedTask = value;
+                },
+                decoration: InputDecoration(hintText: "Ingrese la nueva tarea"),
+                controller: TextEditingController(text: currentName),
+              ),
+              TextField(
+                onChanged: (value) {
+                  updatedDescription = value; // Captura la nueva descripción
+                },
+                decoration: InputDecoration(hintText: "Ingrese la nueva descripción"),
+                controller: TextEditingController(text: currentDescription),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -122,10 +157,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     await _firestore
                         .collection('tasks')
                         .doc(taskId)
-                        .update({'name': updatedTask});
+                        .update({
+                      'name': updatedTask,
+                      'description': updatedDescription // Actualiza la descripción
+                    });
                     setState(() {
                       final index = tasks.indexWhere((task) => task['id'] == taskId);
                       tasks[index]['name'] = updatedTask;
+                      tasks[index]['description'] = updatedDescription; // Actualiza la descripción en la lista
                     });
                   } catch (e) {
                     print('Error updating task: $e');
@@ -159,14 +198,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String email = '';
+        String memberName = '';
         return AlertDialog(
           title: Text('Añadir Miembro'),
           content: TextField(
             onChanged: (value) {
-              email = value;
+              memberName = value;
             },
-            decoration: InputDecoration(hintText: "Ingrese el correo del miembro"),
+            decoration: InputDecoration(hintText: "Ingrese el nombre del miembro"),
           ),
           actions: <Widget>[
             TextButton(
@@ -178,11 +217,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             TextButton(
               child: Text('Añadir'),
               onPressed: () async {
-                if (email.isNotEmpty) {
+                if (memberName.isNotEmpty) {
                   try {
                     final userSnapshot = await _firestore
                         .collection('users')
-                        .where('email', isEqualTo: email)
+                        .where('name', isEqualTo: memberName)
                         .get();
 
                     if (userSnapshot.docs.isNotEmpty) {
@@ -190,7 +229,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       await _firestore.collection('teams').doc(widget.team['id']).update({
                         'members': FieldValue.arrayUnion([userId])
                       });
-                      _fetchTeamMembers(); // Refrescar la lista de miembros
+                      // Actualizar la lista de miembros inmediatamente
+                      _fetchTeamMembers();  // Refrescar la lista de miembros
                     }
                   } catch (e) {
                     print('Error adding member: $e');
@@ -224,8 +264,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final members = widget.team['members'] ?? [];
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Tareas del Equipo ${widget.team['name']}'),
@@ -238,10 +276,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             Text('Miembros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ListView.builder(
               shrinkWrap: true,
-              itemCount: members.length,
+              itemCount: teamMembers.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(members[index]),
+                  title: Text(teamMembers[index]),
                 );
               },
             ),
@@ -254,12 +292,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(tasks[index]['name']),
+                          subtitle: Text(tasks[index]['description'] ?? ''), // Mostrar la descripción
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
                                 icon: Icon(Icons.edit),
-                                onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name']),
+                                onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name'], tasks[index]['description']),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete),
@@ -295,3 +334,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 }
+
+
+
