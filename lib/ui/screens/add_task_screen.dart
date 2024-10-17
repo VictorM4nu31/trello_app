@@ -19,6 +19,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> teamMembers = []; // Cambiar a una lista de mapas para incluir nombre y foto
+  List<String> selectedMembers = []; // Lista para almacenar los IDs de los miembros seleccionados
 
   @override
   void initState() {
@@ -50,30 +51,78 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  void _addTask() {
+  Future<void> _fetchTeamMembers() async {
+    try {
+      final snapshot = await _firestore
+          .collection('teams')
+          .doc(widget.team['id'])
+          .get();
+
+      if (snapshot.exists) {
+        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
+        final memberData = await Future.wait(memberIds.map((id) async {
+          final userDoc = await _firestore.collection('users').doc(id).get();
+          return {
+            'id': id,
+            'name': userDoc['name'],
+            'photoUrl': userDoc['photoUrl'],
+          };
+        }));
+
+        setState(() {
+          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
+        });
+      }
+    } catch (e) {
+      logger.e('Error fetching team members: $e');
+    }
+  }
+
+  Future<void> _addTask() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String newTask = '';
-        String newDescription = ''; // Nueva variable para la descripción
+        String newDescription = '';
         return AlertDialog(
           title: const Text('Añadir Tarea'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  newTask = value;
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
-              ),
-              TextField(
-                onChanged: (value) {
-                  newDescription = value; // Captura la descripción
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la descripción"),
-              ),
-            ],
+          content: SingleChildScrollView( // Permite el desplazamiento si hay muchos miembros
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  onChanged: (value) {
+                    newTask = value;
+                  },
+                  decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
+                ),
+                TextField(
+                  onChanged: (value) {
+                    newDescription = value;
+                  },
+                  decoration: const InputDecoration(hintText: "Ingrese la descripción"),
+                ),
+                const SizedBox(height: 16),
+                const Text('Asignar a miembros:'),
+                Column(
+                  children: teamMembers.map((member) {
+                    return CheckboxListTile(
+                      title: Text(member['name']),
+                      value: selectedMembers.contains(member['id']),
+                      onChanged: (bool? selected) {
+                        setState(() {
+                          if (selected == true) {
+                            selectedMembers.add(member['id']);
+                          } else {
+                            selectedMembers.remove(member['id']);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -89,27 +138,29 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   try {
                     final user = _auth.currentUser;
                     if (user != null) {
-                      final docRef = await _firestore
-                          .collection('tasks')
-                          .add({
+                      final docRef = await _firestore.collection('tasks').add({
                         'name': newTask,
-                        'description': newDescription, // Agregar descripción
+                        'description': newDescription,
                         'teamId': widget.team['id'],
-                        'userId': user.uid
+                        'userId': user.uid,
+                        'assignedMembers': selectedMembers.isNotEmpty ? selectedMembers : [],
                       });
                       setState(() {
                         tasks.add({
                           'id': docRef.id,
                           'name': newTask,
-                          'description': newDescription // Guardar descripción
+                          'description': newDescription,
+                          'assignedMembers': selectedMembers,
                         });
                       });
+                    } else {
+                      logger.e('No hay usuario autenticado.');
                     }
                   } catch (e) {
                     logger.e('Error adding task: $e');
                   }
                 }
-                if (!context.mounted) return; // Cambiar a context.mounted
+                if (!context.mounted) return;
                 Navigator.of(context).pop();
               },
             ),
@@ -251,31 +302,70 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  Future<void> _fetchTeamMembers() async {
-    try {
-      final snapshot = await _firestore
-          .collection('teams')
-          .doc(widget.team['id'])
-          .get();
+  void _showAssignedMembers(List<String>? assignedMembers) async {
+    // Asegúrate de que assignedMembers no sea null
+    if (assignedMembers == null || assignedMembers.isEmpty) {
+      // Manejo de caso donde no hay miembros asignados
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Miembros Asignados'),
+            content: const Text('No hay miembros asignados a esta tarea.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-      if (snapshot.exists) {
-        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
-        final memberData = await Future.wait(memberIds.map((id) async {
-          final userDoc = await _firestore.collection('users').doc(id).get();
-          return {
-            'id': id,
-            'name': userDoc['name'],
-            'photoUrl': userDoc['photoUrl'],
-          };
-        }));
-
-        setState(() {
-          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
+    // Obtener los datos de los miembros asignados
+    List<Map<String, dynamic>> memberData = [];
+    for (String memberId in assignedMembers) {
+      final userDoc = await _firestore.collection('users').doc(memberId).get();
+      if (userDoc.exists) {
+        memberData.add({
+          'id': memberId,
+          'name': userDoc['name'],
         });
       }
-    } catch (e) {
-      logger.e('Error fetching team members: $e');
     }
+
+    // Mostrar un diálogo con los miembros asignados
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Miembros Asignados'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              itemCount: memberData.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(memberData[index]['name']),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -314,6 +404,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         return ListTile(
                           title: Text(tasks[index]['name']),
                           subtitle: Text(tasks[index]['description'] ?? ''), // Mostrar la descripción
+                          onTap: () {
+                            // Llamar a la función para mostrar los miembros asignados
+                            _showAssignedMembers(tasks[index]['assignedMembers']);
+                          },
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

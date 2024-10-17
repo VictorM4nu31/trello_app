@@ -7,6 +7,7 @@ import 'package:app_tareas/services/auth_service.dart'; // Importa AuthService
 import 'package:logger/logger.dart'; // Importa Logger
 import 'package:app_tareas/ui/screens/add_task_screen.dart'; // Importa la nueva pantalla para agregar equipo
 import 'package:app_tareas/ui/screens/add_team_screen.dart';
+import 'package:app_tareas/ui/screens/notifications_screen.dart'; // Importa la pantalla de notificaciones
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -24,6 +25,8 @@ class TaskScreenState extends State<TaskScreen> {
   late User? _currentUser;
   List<Map<String, dynamic>> _teams = [];
   bool _isLoading = true;
+  String? _userName;
+  String? _userPhotoUrl;
 
   @override
   void initState() {
@@ -70,6 +73,24 @@ class TaskScreenState extends State<TaskScreen> {
     }
   }
 
+  Future<void> _fetchUserData() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final snapshot = await _firestore.collection('users').doc(user.uid).get();
+        if (snapshot.exists) {
+          var userData = snapshot.data() as Map<String, dynamic>;
+          setState(() {
+            _userName = userData['name'] ?? '';
+            _userPhotoUrl = userData['photoUrl']; // Actualiza la URL de la foto
+          });
+        }
+      }
+    } catch (e) {
+      _logger.e('Error fetching user data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentUser != null) {
@@ -87,7 +108,8 @@ class TaskScreenState extends State<TaskScreen> {
           }
 
           var userData = snapshot.data!.data() as Map<String, dynamic>;
-          String userName = userData['name'] ?? ''; // Recuperar el nombre del usuario
+          _userName = userData['name'] ?? '';
+          _userPhotoUrl = userData['photoUrl']; // Asegúrate de que este campo exista
 
           return Scaffold(
             appBar: AppBar(
@@ -95,7 +117,7 @@ class TaskScreenState extends State<TaskScreen> {
                 children: [
                   const Text('Bienvenido, '),
                   Text(
-                    userName.isNotEmpty ? userName : 'Cargando...',
+                    _userName != null ? _userName! : 'Cargando...',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -103,8 +125,20 @@ class TaskScreenState extends State<TaskScreen> {
               actions: [
                 GestureDetector(
                   onTap: () {
-                    // Navegar a la pantalla de edición de perfil
+                    // Navegar a la pantalla de notificaciones
                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationsScreen(),
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.notifications), // Icono de notificaciones
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    // Navegar a la pantalla de edición de perfil
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditProfileScreen(
@@ -112,12 +146,18 @@ class TaskScreenState extends State<TaskScreen> {
                         ),
                       ),
                     );
+
+                    // Verificar si se actualizó el perfil
+                    if (result == true) {
+                      // Refrescar la información del usuario
+                      _fetchUserData(); // Asegúrate de tener esta función para obtener los datos del usuario
+                    }
                   },
                   child: CircleAvatar(
-                    backgroundImage: _currentUser?.photoURL != null
-                        ? NetworkImage(_currentUser!.photoURL!)
+                    backgroundImage: _userPhotoUrl != null && _userPhotoUrl!.isNotEmpty
+                        ? NetworkImage(_userPhotoUrl!)
                         : null,
-                    child: _currentUser?.photoURL == null
+                    child: _userPhotoUrl == null || _userPhotoUrl!.isEmpty
                         ? const Icon(Icons.person)
                         : null,
                   ),
@@ -248,11 +288,7 @@ class TaskScreenState extends State<TaskScreen> {
         },
       );
     } else {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: Text('No hay usuario autenticado'));
     }
   }
 }
-
-
-
-
