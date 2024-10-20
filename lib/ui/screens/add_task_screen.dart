@@ -18,7 +18,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
-  List<Map<String, dynamic>> teamMembers = []; // Cambiar a una lista de mapas para incluir nombre y foto
+  List<Map<String, dynamic>> teamMembers =
+      []; // Cambiar a una lista de mapas para incluir nombre y foto
 
   @override
   void initState() {
@@ -38,11 +39,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             .get();
 
         setState(() {
-          tasks = snapshot.docs.map((doc) => {
-            'id': doc.id,
-            'name': doc['name'],
-            'description': doc['description'] // Agregar descripción
-          }).toList();
+          tasks = snapshot.docs
+              .map((doc) => {
+                    'id': doc.id,
+                    'name': doc['name'],
+                    'description': doc['description'] // Agregar descripción
+                  })
+              .toList();
         });
       }
     } catch (e) {
@@ -61,57 +64,119 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                onChanged: (value) {
-                  newTask = value;
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE), // Color de relleno gris
+                  borderRadius:
+                      BorderRadius.circular(20.0), // Bordes redondeados
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    newTask = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Ingrese la nueva tarea",
+                    hintStyle: TextStyle(
+                        color: const Color(
+                            0xFFB4B4B4)), // Color del texto del hint
+                    border: InputBorder.none, // Sin borde por defecto
+                    contentPadding:
+                        const EdgeInsets.all(16.0), // Relleno interno
+                  ),
+                ),
               ),
-              TextField(
-                onChanged: (value) {
-                  newDescription = value; // Captura la descripción
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la descripción"),
+              const SizedBox(height: 10), // Espaciado entre los TextFields
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE), // Color de relleno gris
+                  borderRadius:
+                      BorderRadius.circular(20.0), // Bordes redondeados
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    newDescription = value; // Captura la descripción
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Ingrese la descripción",
+                    hintStyle: TextStyle(
+                        color: const Color(
+                            0xFFB4B4B4)), // Color del texto del hint
+                    border: InputBorder.none, // Sin borde por defecto
+                    contentPadding:
+                        const EdgeInsets.all(16.0), // Relleno interno
+                  ),
+                ),
               ),
             ],
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Container(
+              width: 150, // Ancho específico para el botón Cancelar
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC6C6C6), // Color de fondo gris
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-            TextButton(
-              child: const Text('Añadir'),
-              onPressed: () async {
-                if (newTask.isNotEmpty) {
-                  try {
-                    final user = _auth.currentUser;
-                    if (user != null) {
-                      final docRef = await _firestore
-                          .collection('tasks')
-                          .add({
-                        'name': newTask,
-                        'description': newDescription, // Agregar descripción
-                        'teamId': widget.team['id'],
-                        'userId': user.uid
-                      });
-                      setState(() {
-                        tasks.add({
-                          'id': docRef.id,
+            Container(
+              width: 150, // Ancho específico para el botón Añadir
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC8E2B3), // Color de fondo verde
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Añadir',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () async {
+                  if (newTask.isNotEmpty) {
+                    try {
+                      final user = _auth.currentUser;
+                      if (user != null) {
+                        final docRef =
+                            await _firestore.collection('tasks').add({
                           'name': newTask,
-                          'description': newDescription // Guardar descripción
+                          'description': newDescription, // Agregar descripción
+                          'teamId': widget.team['id'],
+                          'userId': user.uid
                         });
-                      });
+                        setState(() {
+                          tasks.add({
+                            'id': docRef.id,
+                            'name': newTask,
+                            'description': newDescription // Guardar descripción
+                          });
+                        });
+                      }
+                    } catch (e) {
+                      logger.e('Error adding task: $e');
                     }
-                  } catch (e) {
-                    logger.e('Error adding task: $e');
                   }
-                }
-                if (!context.mounted) return; // Cambiar a context.mounted
-                Navigator.of(context).pop();
-              },
+                  if (!context.mounted) return; // Cambiar a context.mounted
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
           ],
         );
@@ -119,64 +184,129 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  void _updateTask(String taskId, String currentName, String currentDescription) {
+  void _updateTask(
+      String taskId, String currentName, String currentDescription) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
-        String updatedDescription = currentDescription; // Nueva variable para la descripción
+        String updatedDescription =
+            currentDescription; // Nueva variable para la descripción
         return AlertDialog(
           title: const Text('Actualizar Tarea'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                onChanged: (value) {
-                  updatedTask = value;
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
-                controller: TextEditingController(text: currentName),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE), // Color de relleno gris
+                  borderRadius:
+                      BorderRadius.circular(20.0), // Bordes redondeados
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    updatedTask = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Ingrese la nueva tarea",
+                    hintStyle: TextStyle(
+                        color: const Color(
+                            0xFFB4B4B4)), // Color del texto del hint
+                    border: InputBorder.none, // Sin borde por defecto
+                    contentPadding:
+                        const EdgeInsets.all(16.0), // Relleno interno
+                  ),
+                  controller: TextEditingController(text: currentName),
+                ),
               ),
-              TextField(
-                onChanged: (value) {
-                  updatedDescription = value; // Captura la nueva descripción
-                },
-                decoration: const InputDecoration(hintText: "Ingrese la nueva descripción"),
-                controller: TextEditingController(text: currentDescription),
+              const SizedBox(height: 10), // Espaciado entre los TextFields
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE), // Color de relleno gris
+                  borderRadius:
+                      BorderRadius.circular(20.0), // Bordes redondeados
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    updatedDescription = value; // Captura la nueva descripción
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Ingrese la nueva descripción",
+                    hintStyle: TextStyle(
+                        color: const Color(
+                            0xFFB4B4B4)), // Color del texto del hint
+                    border: InputBorder.none, // Sin borde por defecto
+                    contentPadding:
+                        const EdgeInsets.all(16.0), // Relleno interno
+                  ),
+                  controller: TextEditingController(text: currentDescription),
+                ),
               ),
             ],
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Container(
+              width: 150, // Ancho específico para el botón Cancelar
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC6C6C6), // Color de fondo gris
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-            TextButton(
-              child: const Text('Actualizar'),
-              onPressed: () async {
-                if (updatedTask.isNotEmpty) {
-                  try {
-                    await _firestore
-                        .collection('tasks')
-                        .doc(taskId)
-                        .update({
-                      'name': updatedTask,
-                      'description': updatedDescription // Actualiza la descripción
-                    });
-                    setState(() {
-                      final index = tasks.indexWhere((task) => task['id'] == taskId);
-                      tasks[index]['name'] = updatedTask;
-                      tasks[index]['description'] = updatedDescription; // Actualiza la descripción en la lista
-                    });
-                  } catch (e) {
-                    logger.e('Error updating task: $e');
+            Container(
+              width: 150, // Ancho específico para el botón Actualizar
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC8E2B3), // Color de fondo verde
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Actualizar',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () async {
+                  if (updatedTask.isNotEmpty) {
+                    try {
+                      await _firestore.collection('tasks').doc(taskId).update({
+                        'name': updatedTask,
+                        'description':
+                            updatedDescription // Actualiza la descripción
+                      });
+                      setState(() {
+                        final index =
+                            tasks.indexWhere((task) => task['id'] == taskId);
+                        tasks[index]['name'] = updatedTask;
+                        tasks[index]['description'] =
+                            updatedDescription; // Actualiza la descripción en la lista
+                      });
+                    } catch (e) {
+                      logger.e('Error updating task: $e');
+                    }
                   }
-                }
-                if (!context.mounted) return; // Cambiar a context.mounted
-                Navigator.of(context).pop();
-              },
+                  if (!context.mounted) return; // Cambiar a context.mounted
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
           ],
         );
@@ -186,10 +316,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _deleteTask(String taskId) async {
     try {
-      await _firestore
-          .collection('tasks')
-          .doc(taskId)
-          .delete();
+      await _firestore.collection('tasks').doc(taskId).delete();
 
       setState(() {
         tasks.removeWhere((task) => task['id'] == taskId);
@@ -206,44 +333,99 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         String memberName = '';
         return AlertDialog(
           title: const Text('Añadir Miembro'),
-          content: TextField(
-            onChanged: (value) {
-              memberName = value;
-            },
-            decoration: const InputDecoration(hintText: "Ingrese el nombre del miembro"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE), // Color de relleno gris
+                  borderRadius:
+                      BorderRadius.circular(20.0), // Bordes redondeados
+                ),
+                child: TextField(
+                  onChanged: (value) {
+                    memberName = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Ingrese el nombre del miembro",
+                    hintStyle: TextStyle(
+                        color: const Color(
+                            0xFFB4B4B4)), // Color del texto del hint
+                    border: InputBorder.none, // Sin borde por defecto
+                    contentPadding:
+                        const EdgeInsets.all(16.0), // Relleno interno
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Container(
+              width: 150, // Ancho específico para el botón Cancelar
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC6C6C6), // Color de fondo gris
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-            TextButton(
-              child: const Text('Añadir'),
-              onPressed: () async {
-                if (memberName.isNotEmpty) {
-                  try {
-                    final userSnapshot = await _firestore
-                        .collection('users')
-                        .where('name', isEqualTo: memberName)
-                        .get();
+            Container(
+              width: 150, // Ancho específico para el botón Añadir
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      const Color(0xFFC8E2B3), // Color de fondo verde
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                ),
+                child: const Text(
+                  'Añadir',
+                  style: TextStyle(
+                    color: Colors.black, // Color del texto
+                  ),
+                ),
+                onPressed: () async {
+                  if (memberName.isNotEmpty) {
+                    try {
+                      final userSnapshot = await _firestore
+                          .collection('users')
+                          .where('name', isEqualTo: memberName)
+                          .get();
 
-                    if (userSnapshot.docs.isNotEmpty) {
-                      final userId = userSnapshot.docs.first.id;
-                      await _firestore.collection('teams').doc(widget.team['id']).update({
-                        'members': FieldValue.arrayUnion([userId])
-                      });
-                      // Actualizar la lista de miembros inmediatamente
-                      _fetchTeamMembers();  // Refrescar la lista de miembros
+                      if (userSnapshot.docs.isNotEmpty) {
+                        final userId = userSnapshot.docs.first.id;
+                        await _firestore
+                            .collection('teams')
+                            .doc(widget.team['id'])
+                            .update({
+                          'members': FieldValue.arrayUnion([userId])
+                        });
+                        // Actualizar la lista de miembros inmediatamente
+                        _fetchTeamMembers(); // Refrescar la lista de miembros
+                      }
+                    } catch (e) {
+                      logger.e('Error adding member: $e');
                     }
-                  } catch (e) {
-                    logger.e('Error adding member: $e');
                   }
-                }
-                if (!context.mounted) return; // Cambiar a context.mounted
-                Navigator.of(context).pop();
-              },
+                  if (!context.mounted) return; // Cambiar a context.mounted
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
           ],
         );
@@ -253,10 +435,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _fetchTeamMembers() async {
     try {
-      final snapshot = await _firestore
-          .collection('teams')
-          .doc(widget.team['id'])
-          .get();
+      final snapshot =
+          await _firestore.collection('teams').doc(widget.team['id']).get();
 
       if (snapshot.exists) {
         final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
@@ -270,7 +450,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         }));
 
         setState(() {
-          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
+          teamMembers =
+              memberData; // Asegúrate de que esto sea una lista de mapas
         });
       }
     } catch (e) {
@@ -282,51 +463,122 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tareas del Equipo ${widget.team['name']}'),
+        title: const Text(''),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Color(0xFFFFEE93), // Color de la flecha FFEE93
+            size: 45, // Tamaño de la flecha (puedes cambiar este valor)
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text('Miembros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            // Texto que aparece debajo del AppBar
+            Center(
+              // Agrega este widget para centrar el texto
+              child: Text(
+                '${widget.team['name']}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Center(
+              // Agrega este widget para centrar el texto
+              child: Text(
+                'Tareas del equipo',
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(
+              height:
+                  10, // Espaciado entre el texto del equipo y la lista de miembros
+            ),
+            const Text(
+              'Miembros',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             ListView.builder(
-              shrinkWrap: true,
+              shrinkWrap:
+                  true, // Esto permite que la lista ocupe solo el espacio necesario
+              physics:
+                  const NeverScrollableScrollPhysics(), // Desactiva el desplazamiento si no es necesario
               itemCount: teamMembers.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: teamMembers[index]['photoUrl'] != null
                       ? CircleAvatar(
-                          backgroundImage: NetworkImage(teamMembers[index]['photoUrl']),
+                          backgroundImage:
+                              NetworkImage(teamMembers[index]['photoUrl']),
                         )
                       : null,
                   title: Text(teamMembers[index]['name']),
                 );
               },
             ),
-            const SizedBox(height: 20),
-            const Text('Tareas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+            const SizedBox(height: 10), // Espaciado antes de la línea divisoria
+            const Divider(
+              color: Colors.grey, // Color de la línea
+              thickness: 1, // Grosor de la línea
+            ),
+            const SizedBox(
+                height: 10), // Espaciado después de la línea divisoria
+
+            const Text(
+              'Tareas',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
             Expanded(
               child: tasks.isNotEmpty
                   ? ListView.builder(
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(tasks[index]['name']),
-                          subtitle: Text(tasks[index]['description'] ?? ''), // Mostrar la descripción
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name'], tasks[index]['description']),
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Text(tasks[index]['name']),
+                              subtitle: Text(tasks[index]['description'] ?? ''),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _updateTask(
+                                      tasks[index]['id'],
+                                      tasks[index]['name'],
+                                      tasks[index]['description'],
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color(
+                                          0xFFFF9393), // Color de fondo rosa
+                                      shape: BoxShape.circle, // Forma circular
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.white),
+                                      onPressed: () =>
+                                          _deleteTask(tasks[index]['id']),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteTask(tasks[index]['id']),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const Divider(
+                              color: Colors.grey, // Color de la línea
+                              thickness: 1, // Grosor de la línea
+                            ), // Línea divisoria después de cada tarea
+                          ],
                         );
                       },
                     )
@@ -335,23 +587,36 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.center, // Centra los botones en el eje horizontal
         children: [
           FloatingActionButton(
             onPressed: _addMember,
             heroTag: null,
-            child: const Icon(Icons.person_add),
+            backgroundColor: Colors.black, // Cambia el color de fondo
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(100), // Hace que sea totalmente redondo
+            ),
+            child: const Icon(Icons.person_add,
+                color: Colors.white), // Cambia el color del ícono
           ),
-          const SizedBox(height: 10),
+          const SizedBox(width: 20), // Espaciado horizontal entre los botones
           FloatingActionButton(
             onPressed: _addTask,
             heroTag: null,
-            child: const Icon(Icons.add),
+            backgroundColor: Colors.black, // Otro color para el botón
+            shape: RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(100), // Hace que sea totalmente redondo
+            ),
+            child: const Icon(Icons.add, color: Colors.white),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation
+          .centerFloat, // Ubica los botones centrados horizontalmente
     );
   }
 }
