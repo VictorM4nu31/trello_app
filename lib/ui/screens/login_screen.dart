@@ -50,54 +50,124 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Iniciar sesión'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Añadir el logo aquí
-            Image.asset(
-              'assets/sunshine.png', // Ruta de tu logo
-              height: 100, // Ajusta el tamaño según sea necesario
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/sunshine.png',
+                  height: 280,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Ingrese correo electrónico',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                    ),
+                    labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 157, 157, 158)),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                    ),
+                    labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                  ),
+                  obscureText: true,
+                  style: TextStyle(color: const Color(0xFFC9C9CA)),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: false,
+                      onChanged: (bool? value) {
+                        // Manejar el cambio de estado del checkbox
+                      },
+                      activeColor: const Color(0xFFC9C9CA),
+                      checkColor: Colors.black,
+                      side: BorderSide(color: const Color(0xFFC9C9CA)),
+                    ),
+                    Text(
+                      'Acepto Términos y Condiciones',
+                      style: TextStyle(color: const Color(0xFF6BCE81)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    border:
+                        Border.all(color: const Color(0xFFFFEE93), width: 2),
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _loginWithEmail,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB7F6E3),
+                      foregroundColor: Colors.black,
+                      minimumSize: const Size(200, 50),
+                      shadowColor: Colors.transparent,
+                    ),
+                    child: const Text('Iniciar'),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Ingrese con su cuenta de Google',
+                  style: TextStyle(color: const Color(0xFFC9C9CA)),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _loginWithGoogle,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 8, 155, 131),
+                  ),
+                  child: const Text('Iniciar sesión con Google'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterScreen()),
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '¿No tienes una cuenta? ',
+                          style: TextStyle(color: const Color(0xFFC9C9CA)),
+                        ),
+                        TextSpan(
+                          text: 'Regístrate',
+                          style: TextStyle(color: const Color(0xFF0D4533)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20), // Espacio entre el logo y el formulario
-            TextField(
-              controller: _emailController,
-              decoration:
-                  const InputDecoration(labelText: 'Correo electrónico'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _loginWithEmail,
-              child: const Text('Iniciar sesión con correo'),
-            ),
-            ElevatedButton(
-              onPressed: _loginWithGoogle,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // color del botón
-              ),
-              child: const Text('Iniciar sesión con Google'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RegisterScreen()),
-                );
-              },
-              child: const Text('¿No tienes una cuenta? Regístrate aquí'),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -9,6 +9,37 @@ import 'package:app_tareas/ui/screens/add_task_screen.dart'; // Importa la nueva
 import 'package:app_tareas/ui/screens/add_team_screen.dart';
 import 'package:app_tareas/ui/screens/notifications_screen.dart'; // Importa la pantalla de notificaciones
 
+class PuzzlePieceClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+
+    // Dibujar rectángulo básico
+    path.moveTo(0, 0);
+    path.lineTo(
+        0,
+        size.height *
+            0.8); // Se dibuja el lado izquierdo hasta el 80% de la altura
+
+    // Parte inferior con curva para simular una pieza de rompecabezas
+    path.quadraticBezierTo(
+        size.width * 0.25, size.height, size.width * 0.5, size.height * 0.8);
+    path.quadraticBezierTo(
+        size.width * 0.75, size.height, size.width, size.height * 0.8);
+
+    path.lineTo(size.width, 0); // Lado derecho de la tarjeta
+    path.lineTo(0, 0); // Lado superior de la tarjeta
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return false;
+  }
+}
+
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
 
@@ -108,17 +139,42 @@ class TaskScreenState extends State<TaskScreen> {
           }
 
           var userData = snapshot.data!.data() as Map<String, dynamic>;
+<<<<<<< HEAD
           _userName = userData['name'] ?? '';
           _userPhotoUrl = userData['photoUrl']; // Asegúrate de que este campo exista
+=======
+          String userName =
+              userData['name'] ?? ''; // Recuperar el nombre del usuario
+>>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
 
           return Scaffold(
             appBar: AppBar(
-              title: Row(
+              title: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Alinea el texto a la izquierda
                 children: [
+<<<<<<< HEAD
                   const Text('Bienvenido, '),
                   Text(
                     _userName != null ? _userName! : 'Cargando...',
                     style: const TextStyle(fontWeight: FontWeight.bold),
+=======
+                  Row(
+                    children: [
+                      const Text('Hola, '),
+                      Text(
+                        userName.isNotEmpty ? userName : 'Cargando...',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                      height: 4), // Espacio entre el saludo y el subtítulo
+                  const Text(
+                    '¡Bienvenido de nuevo!', // Texto adicional
+                    style:
+                        TextStyle(fontSize: 12), // Tamaño de fuente más pequeño
+>>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
                   ),
                 ],
               ),
@@ -142,7 +198,8 @@ class TaskScreenState extends State<TaskScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditProfileScreen(
-                          userId: _currentUser!.uid, // Pasa el userId a la pantalla de edición
+                          userId: _currentUser!
+                              .uid, // Pasa el userId a la pantalla de edición
                         ),
                       ),
                     );
@@ -170,7 +227,8 @@ class TaskScreenState extends State<TaskScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => UserTasksScreen(
-                          userId: _currentUser!.uid, // Pasa el userId a la pantalla de tareas
+                          userId: _currentUser!
+                              .uid, // Pasa el userId a la pantalla de tareas
                         ),
                       ),
                     );
@@ -189,81 +247,118 @@ class TaskScreenState extends State<TaskScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : _teams.isEmpty
                     ? const Center(child: Text('No tienes equipos.'))
-                    : ListView.builder(
-                        itemCount: _teams.length,
-                        itemBuilder: (context, index) {
-                          final team = _teams[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 16.0),
-                            child: Card(
-                              color: Color(team['color'] ?? 0xFFFFFFFF),
-                              child: ListTile(
-                                title: Text(
-                                  team['name'] ?? 'Nombre del Equipo',
-                                  style: const TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddTaskScreen(
-                                              team: {
-                                                'id': team['id'], // Asegúrate de pasar el ID del equipo
-                                                'name': team['name'],
-                                                'members': team['members'] ?? [],
-                                                'color': team['color'],
+                    : Padding(
+                        padding: const EdgeInsets.all(
+                            16.0), // Añade un padding al body
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment
+                              .start, // Alinea el texto a la izquierda
+                          children: [
+                            const Text(
+                              'Aquí puedes ver tus equipos:',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight:
+                                      FontWeight.bold), // Estilo del texto
+                            ),
+                            const SizedBox(
+                                height:
+                                    16), // Espacio entre el texto y la lista
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: _teams.length,
+                                itemBuilder: (context, index) {
+                                  final team = _teams[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0, horizontal: 16.0),
+                                    child: Card(
+                                      color: Color(team['color'] ?? 0xFFFFFFFF),
+                                      child: ListTile(
+                                        title: Text(
+                                          team['name'] ?? 'Nombre del Equipo',
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AddTaskScreen(
+                                                      team: {
+                                                        'id': team[
+                                                            'id'], // Asegúrate de pasar el ID del equipo
+                                                        'name': team['name'],
+                                                        'members':
+                                                            team['members'] ??
+                                                                [],
+                                                        'color': team['color'],
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text('Ver'),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.delete),
+                                              onPressed: () async {
+                                                bool confirmDelete =
+                                                    await showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Eliminar Equipo'),
+                                                      content: const Text(
+                                                          '¿Estás seguro de que deseas eliminar este equipo?'),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          child: const Text(
+                                                              'Cancelar'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(false);
+                                                          },
+                                                        ),
+                                                        TextButton(
+                                                          child: const Text(
+                                                              'Eliminar'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(true);
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+
+                                                if (confirmDelete) {
+                                                  await _deleteTeam(team[
+                                                      'id']); // Asegúrate de que team['id'] no sea nulo
+                                                }
                                               },
                                             ),
-                                          ),
-                                        );
-                                      },
-                                      child: const Text('Ver'),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () async {
-                                        bool confirmDelete = await showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: const Text('Eliminar Equipo'),
-                                              content: const Text('¿Estás seguro de que deseas eliminar este equipo?'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: const Text('Cancelar'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(false);
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: const Text('Eliminar'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(true);
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-
-                                        if (confirmDelete) {
-                                          await _deleteTeam(team['id']); // Asegúrate de que team['id'] no sea nulo
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
@@ -282,8 +377,7 @@ class TaskScreenState extends State<TaskScreen> {
               },
               child: const Icon(Icons.add),
             ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.endFloat,
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           );
         },
       );
@@ -291,4 +385,8 @@ class TaskScreenState extends State<TaskScreen> {
       return const Center(child: Text('No hay usuario autenticado'));
     }
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
