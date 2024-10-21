@@ -79,10 +79,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         }
       } catch (e) {
         if (mounted) {
-<<<<<<< HEAD
-=======
-          // Verifica si el widget está montado
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
+          // Verifica si el widget está montad
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error al actualizar el perfil')),
           );

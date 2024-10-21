@@ -294,8 +294,5 @@ class RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
+

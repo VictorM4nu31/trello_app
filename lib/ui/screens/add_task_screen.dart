@@ -18,13 +18,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
-<<<<<<< HEAD
-  List<Map<String, dynamic>> teamMembers = []; // Cambiar a una lista de mapas para incluir nombre y foto
+  List<Map<String, dynamic>> teamMembers = []; // Eliminar duplicado
   List<String> selectedMembers = []; // Lista para almacenar los IDs de los miembros seleccionados
-=======
-  List<Map<String, dynamic>> teamMembers =
-      []; // Cambiar a una lista de mapas para incluir nombre y foto
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
+  Color? selectedColor; // Inicializar como null
 
   @override
   void initState() {
@@ -60,10 +56,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _fetchTeamMembers() async {
     try {
-      final snapshot = await _firestore
-          .collection('teams')
-          .doc(widget.team['id'])
-          .get();
+      final snapshot =
+          await _firestore.collection('teams').doc(widget.team['id']).get();
 
       if (snapshot.exists) {
         final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
@@ -93,7 +87,6 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         String newDescription = '';
         return AlertDialog(
           title: const Text('Añadir Tarea'),
-<<<<<<< HEAD
           content: SingleChildScrollView( // Permite el desplazamiento si hay muchos miembros
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -129,68 +122,60 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     );
                   }).toList(),
                 ),
+                const SizedBox(height: 16),
+                const Text('Seleccionar color de tarea:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.green; // Terminado
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        radius: 20,
+                        child: selectedColor == Colors.green ? const Icon(Icons.check, color: Colors.white) : null,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.yellow; // En desarrollo
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.yellow,
+                        radius: 20,
+                        child: selectedColor == Colors.yellow ? const Icon(Icons.check, color: Colors.black) : null,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.red; // Asignado
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.red,
+                        radius: 20,
+                        child: selectedColor == Colors.red ? const Icon(Icons.check, color: Colors.white) : null,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-=======
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    newTask = value;
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Ingrese la nueva tarea",
-                    hintStyle: TextStyle(
-                        color: const Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10), // Espaciado entre los TextFields
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    newDescription = value; // Captura la descripción
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Ingrese la descripción",
-                    hintStyle: TextStyle(
-                        color: const Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
-                  ),
-                ),
-              ),
-            ],
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
           ),
           actions: <Widget>[
             Container(
               width: 150, // Ancho específico para el botón Cancelar
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC6C6C6), // Color de fondo gris
+                  backgroundColor: const Color(0xFFC6C6C6), // Color de fondo gris
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
+                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
                   ),
                 ),
                 child: const Text(
@@ -204,41 +189,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 },
               ),
             ),
-<<<<<<< HEAD
-            TextButton(
-              child: const Text('Añadir'),
-              onPressed: () async {
-                if (newTask.isNotEmpty) {
-                  try {
-                    final user = _auth.currentUser;
-                    if (user != null) {
-                      final docRef = await _firestore.collection('tasks').add({
-                        'name': newTask,
-                        'description': newDescription,
-                        'teamId': widget.team['id'],
-                        'userId': user.uid,
-                        'assignedMembers': selectedMembers.isNotEmpty ? selectedMembers : [],
-                      });
-                      setState(() {
-                        tasks.add({
-                          'id': docRef.id,
-                          'name': newTask,
-                          'description': newDescription,
-                          'assignedMembers': selectedMembers,
-                        });
-                      });
-                    } else {
-                      logger.e('No hay usuario autenticado.');
-=======
             Container(
               width: 150, // Ancho específico para el botón Añadir
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC8E2B3), // Color de fondo verde
+                  backgroundColor: const Color(0xFFC8E2B3), // Color de fondo verde
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
+                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
                   ),
                 ),
                 child: const Text(
@@ -252,12 +209,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     try {
                       final user = _auth.currentUser;
                       if (user != null) {
-                        final docRef =
-                            await _firestore.collection('tasks').add({
+                        final docRef = await _firestore.collection('tasks').add({
                           'name': newTask,
                           'description': newDescription, // Agregar descripción
                           'teamId': widget.team['id'],
-                          'userId': user.uid
+                          'userId': user.uid,
+                          'statusColor': selectedColor?.value ?? Colors.transparent.value // Manejar null
                         });
                         setState(() {
                           tasks.add({
@@ -269,20 +226,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       }
                     } catch (e) {
                       logger.e('Error adding task: $e');
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
                     }
                   }
-<<<<<<< HEAD
-                }
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-              },
-=======
                   if (!context.mounted) return; // Cambiar a context.mounted
                   Navigator.of(context).pop();
                 },
               ),
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
             ),
           ],
         );
@@ -296,8 +245,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
-        String updatedDescription =
-            currentDescription; // Nueva variable para la descripción
+        String updatedDescription = currentDescription; // Nueva variable para la descripción
         return AlertDialog(
           title: const Text('Actualizar Tarea'),
           content: Column(
@@ -539,7 +487,6 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-<<<<<<< HEAD
   void _showAssignedMembers(List<String>? assignedMembers) async {
     // Asegúrate de que assignedMembers no sea null
     if (assignedMembers == null || assignedMembers.isEmpty) {
@@ -572,27 +519,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         memberData.add({
           'id': memberId,
           'name': userDoc['name'],
-=======
-  Future<void> _fetchTeamMembers() async {
-    try {
-      final snapshot =
-          await _firestore.collection('teams').doc(widget.team['id']).get();
-
-      if (snapshot.exists) {
-        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
-        final memberData = await Future.wait(memberIds.map((id) async {
-          final userDoc = await _firestore.collection('users').doc(id).get();
-          return {
-            'id': id,
-            'name': userDoc['name'],
-            'photoUrl': userDoc['photoUrl'],
-          };
-        }));
-
-        setState(() {
-          teamMembers =
-              memberData; // Asegúrate de que esto sea una lista de mapas
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
+          'photoUrl': userDoc['photoUrl'],
         });
       }
     }
@@ -710,21 +637,6 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   ? ListView.builder(
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
-<<<<<<< HEAD
-                        return ListTile(
-                          title: Text(tasks[index]['name']),
-                          subtitle: Text(tasks[index]['description'] ?? ''), // Mostrar la descripción
-                          onTap: () {
-                            // Llamar a la función para mostrar los miembros asignados
-                            _showAssignedMembers(tasks[index]['assignedMembers']);
-                          },
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _updateTask(tasks[index]['id'], tasks[index]['name'], tasks[index]['description']),
-=======
                         return Column(
                           children: [
                             ListTile(
@@ -755,7 +667,6 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                     ),
                                   ),
                                 ],
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
                               ),
                             ),
                             const Divider(

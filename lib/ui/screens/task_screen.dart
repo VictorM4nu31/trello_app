@@ -139,13 +139,10 @@ class TaskScreenState extends State<TaskScreen> {
           }
 
           var userData = snapshot.data!.data() as Map<String, dynamic>;
-<<<<<<< HEAD
           _userName = userData['name'] ?? '';
           _userPhotoUrl = userData['photoUrl']; // Asegúrate de que este campo exista
-=======
           String userName =
               userData['name'] ?? ''; // Recuperar el nombre del usuario
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
 
           return Scaffold(
             appBar: AppBar(
@@ -153,12 +150,11 @@ class TaskScreenState extends State<TaskScreen> {
                 crossAxisAlignment:
                     CrossAxisAlignment.start, // Alinea el texto a la izquierda
                 children: [
-<<<<<<< HEAD
                   const Text('Bienvenido, '),
                   Text(
                     _userName != null ? _userName! : 'Cargando...',
                     style: const TextStyle(fontWeight: FontWeight.bold),
-=======
+                  ),
                   Row(
                     children: [
                       const Text('Hola, '),
@@ -174,7 +170,6 @@ class TaskScreenState extends State<TaskScreen> {
                     '¡Bienvenido de nuevo!', // Texto adicional
                     style:
                         TextStyle(fontSize: 12), // Tamaño de fuente más pequeño
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
                   ),
                 ],
               ),
@@ -385,8 +380,5 @@ class TaskScreenState extends State<TaskScreen> {
       return const Center(child: Text('No hay usuario autenticado'));
     }
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
+
