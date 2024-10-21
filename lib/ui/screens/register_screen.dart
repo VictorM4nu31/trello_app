@@ -94,75 +94,208 @@ class RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registro'),
+        title: const Text(''),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.chevron_left,
+            size: 45,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      body: SingleChildScrollView( // Añadir SingleChildScrollView
+      body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage:
-                        _profileImage != null ? FileImage(_profileImage!) : null,
-                    child: _profileImage == null
-                        ? const Icon(Icons.add, size: 50)
-                        : null,
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 400),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFFFFFFF),
+                            const Color(0xFF5BC0A0),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFFFFEE93),
+                          width: 2,
+                        ),
+                      ),
+                      child: ClipOval(
+                        child: _profileImage != null
+                            ? Image.file(
+                                _profileImage!,
+                                fit: BoxFit.cover,
+                                width: 160,
+                                height: 160,
+                              )
+                            : const Icon(
+                                Icons.add_circle_outline,
+                                size: 70,
+                                color: Color(0xFF5BC0A0),
+                              ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8.0),
-                const Text('Agregar foto de perfil'),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _surnameController,
-                  decoration: const InputDecoration(labelText: 'Apellidos'),
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Correo Electrónico'),
-                  validator: _validateEmail,
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  obscureText: true,
-                  validator: _validatePassword,
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: 'Confirmar Contraseña'),
-                  obscureText: true,
-                  validator: _validatePassword,
-                ),
-                const SizedBox(height: 32.0),
-                ElevatedButton(
-                  onPressed: _register,
-                  child: const Text('Registrar'),
-                ),
-              ],
+                  const SizedBox(height: 8.0),
+                  const Text(
+                    'Agregar foto de perfil',
+                    style: TextStyle(color: Color(0xFF827A7A)),
+                  ),
+                  const SizedBox(height: 50),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nombre',
+                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 125, 125, 125)),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _surnameController,
+                    decoration: InputDecoration(
+                      labelText: 'Apellidos',
+                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 125, 125, 125)),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Correo Electrónico',
+                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    validator: _validateEmail,
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Contraseña',
+                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    obscureText: true,
+                    validator: _validatePassword,
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Contraseña',
+                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      ),
+                    ),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    obscureText: true,
+                    validator: _validatePassword,
+                  ),
+                  const SizedBox(height: 32.0),
+                  ElevatedButton(
+                    onPressed: _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFB7F6E3),
+                      foregroundColor: Colors.black,
+                      minimumSize: const Size(200, 50),
+                      side:
+                          BorderSide(color: const Color(0xFFFFEE93), width: 2),
+                    ),
+                    child: const Text(
+                      'Registrar',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 099dea1da43cf48bee5eebb03701eedb52af4b1c
