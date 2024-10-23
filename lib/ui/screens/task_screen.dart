@@ -267,25 +267,79 @@ class TaskScreenState extends State<TaskScreen> {
                                                       title: const Text(
                                                           'Eliminar Equipo'),
                                                       content: const Text(
-                                                          '¿Estás seguro de que deseas eliminar este equipo?'),
+                                                        '¿Estás seguro de que deseas eliminar este equipo?',
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xFFB4B4B4)), // Color del texto gris
+                                                      ),
                                                       actions: <Widget>[
-                                                        TextButton(
-                                                          child: const Text(
-                                                              'Cancelar'),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(false);
-                                                          },
-                                                        ),
-                                                        TextButton(
-                                                          child: const Text(
-                                                              'Eliminar'),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(true);
-                                                          },
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween, // Espacio entre botones
+                                                          children: [
+                                                            Expanded(
+                                                              child: TextButton(
+                                                                style: TextButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      const Color(
+                                                                          0xFFC6C6C6), // Color de fondo gris
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            20.0), // Bordes redondeados
+                                                                  ),
+                                                                ),
+                                                                child:
+                                                                    const Text(
+                                                                  'Cancelar',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black), // Color del texto
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(
+                                                                          false);
+                                                                },
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                width:
+                                                                    16), // Espacio entre botones
+                                                            Expanded(
+                                                              child: TextButton(
+                                                                style: TextButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      const Color(
+                                                                          0xFFC8E2B3), // Color de fondo verde
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            20.0), // Bordes redondeados
+                                                                  ),
+                                                                ),
+                                                                child:
+                                                                    const Text(
+                                                                  'Eliminar',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black), // Color del texto
+                                                                ),
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop(
+                                                                          true);
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ],
                                                     );
