@@ -295,3 +295,4 @@ class RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+

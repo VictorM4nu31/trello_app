@@ -75,7 +75,16 @@ class AuthService {
       );
 
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      return userCredential.user;
+      User? user = userCredential.user;
+
+      // Verificar si el usuario ya existe en Firestore
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(user!.uid).get();
+      if (!userDoc.exists) {
+        // Si no existe, guardar el perfil del usuario
+        await saveUserProfile(user.uid, user.displayName ?? 'Sin nombre', '', null);
+      }
+
+      return user;
     } catch (e) {
       _logger.e('Error al iniciar sesión con Google: $e');
       return null;

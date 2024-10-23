@@ -18,8 +18,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
-  List<Map<String, dynamic>> teamMembers =
-      []; // Cambiar a una lista de mapas para incluir nombre y foto
+  List<Map<String, dynamic>> teamMembers = []; // Eliminar duplicado
+  List<String> selectedMembers = []; // Lista para almacenar los IDs de los miembros seleccionados
+  Color? selectedColor; // Inicializar como null
 
   @override
   void initState() {
@@ -53,72 +54,128 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  void _addTask() {
+  Future<void> _fetchTeamMembers() async {
+    try {
+      final snapshot =
+          await _firestore.collection('teams').doc(widget.team['id']).get();
+
+      if (snapshot.exists) {
+        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
+        final memberData = await Future.wait(memberIds.map((id) async {
+          final userDoc = await _firestore.collection('users').doc(id).get();
+          return {
+            'id': id,
+            'name': userDoc['name'],
+            'photoUrl': userDoc['photoUrl'],
+          };
+        }));
+
+        setState(() {
+          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
+        });
+      }
+    } catch (e) {
+      logger.e('Error fetching team members: $e');
+    }
+  }
+
+  Future<void> _addTask() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String newTask = '';
-        String newDescription = ''; // Nueva variable para la descripción
+        String newDescription = '';
         return AlertDialog(
           title: const Text('Añadir Tarea'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
+          content: SingleChildScrollView( // Permite el desplazamiento si hay muchos miembros
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
                   onChanged: (value) {
                     newTask = value;
                   },
-                  decoration: InputDecoration(
-                    hintText: "Ingrese la nueva tarea",
-                    hintStyle: TextStyle(
-                        color: const Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
-                  ),
+                  decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
                 ),
-              ),
-              const SizedBox(height: 10), // Espaciado entre los TextFields
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
+                TextField(
                   onChanged: (value) {
-                    newDescription = value; // Captura la descripción
+                    newDescription = value;
                   },
-                  decoration: InputDecoration(
-                    hintText: "Ingrese la descripción",
-                    hintStyle: TextStyle(
-                        color: const Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
-                  ),
+                  decoration: const InputDecoration(hintText: "Ingrese la descripción"),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                const Text('Asignar a miembros:'),
+                Column(
+                  children: teamMembers.map((member) {
+                    return CheckboxListTile(
+                      title: Text(member['name']),
+                      value: selectedMembers.contains(member['id']),
+                      onChanged: (bool? selected) {
+                        setState(() {
+                          if (selected == true) {
+                            selectedMembers.add(member['id']);
+                          } else {
+                            selectedMembers.remove(member['id']);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                const Text('Seleccionar color de tarea:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.green; // Terminado
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.green,
+                        radius: 20,
+                        child: selectedColor == Colors.green ? const Icon(Icons.check, color: Colors.white) : null,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.yellow; // En desarrollo
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.yellow,
+                        radius: 20,
+                        child: selectedColor == Colors.yellow ? const Icon(Icons.check, color: Colors.black) : null,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColor = Colors.red; // Asignado
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.red,
+                        radius: 20,
+                        child: selectedColor == Colors.red ? const Icon(Icons.check, color: Colors.white) : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             Container(
               width: 150, // Ancho específico para el botón Cancelar
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC6C6C6), // Color de fondo gris
+                  backgroundColor: const Color(0xFFC6C6C6), // Color de fondo gris
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
+                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
                   ),
                 ),
                 child: const Text(
@@ -136,11 +193,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               width: 150, // Ancho específico para el botón Añadir
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC8E2B3), // Color de fondo verde
+                  backgroundColor: const Color(0xFFC8E2B3), // Color de fondo verde
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
+                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
                   ),
                 ),
                 child: const Text(
@@ -154,12 +209,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     try {
                       final user = _auth.currentUser;
                       if (user != null) {
-                        final docRef =
-                            await _firestore.collection('tasks').add({
+                        final docRef = await _firestore.collection('tasks').add({
                           'name': newTask,
                           'description': newDescription, // Agregar descripción
                           'teamId': widget.team['id'],
-                          'userId': user.uid
+                          'userId': user.uid,
+                          'statusColor': selectedColor?.value ?? Colors.transparent.value // Manejar null
                         });
                         setState(() {
                           tasks.add({
@@ -190,8 +245,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
-        String updatedDescription =
-            currentDescription; // Nueva variable para la descripción
+        String updatedDescription = currentDescription; // Nueva variable para la descripción
         return AlertDialog(
           title: const Text('Actualizar Tarea'),
           content: Column(
@@ -433,30 +487,71 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  Future<void> _fetchTeamMembers() async {
-    try {
-      final snapshot =
-          await _firestore.collection('teams').doc(widget.team['id']).get();
+  void _showAssignedMembers(List<String>? assignedMembers) async {
+    // Asegúrate de que assignedMembers no sea null
+    if (assignedMembers == null || assignedMembers.isEmpty) {
+      // Manejo de caso donde no hay miembros asignados
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Miembros Asignados'),
+            content: const Text('No hay miembros asignados a esta tarea.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-      if (snapshot.exists) {
-        final memberIds = List<String>.from(snapshot.data()?['members'] ?? []);
-        final memberData = await Future.wait(memberIds.map((id) async {
-          final userDoc = await _firestore.collection('users').doc(id).get();
-          return {
-            'id': id,
-            'name': userDoc['name'],
-            'photoUrl': userDoc['photoUrl'],
-          };
-        }));
-
-        setState(() {
-          teamMembers =
-              memberData; // Asegúrate de que esto sea una lista de mapas
+    // Obtener los datos de los miembros asignados
+    List<Map<String, dynamic>> memberData = [];
+    for (String memberId in assignedMembers) {
+      final userDoc = await _firestore.collection('users').doc(memberId).get();
+      if (userDoc.exists) {
+        memberData.add({
+          'id': memberId,
+          'name': userDoc['name'],
+          'photoUrl': userDoc['photoUrl'],
         });
       }
-    } catch (e) {
-      logger.e('Error fetching team members: $e');
     }
+
+    // Mostrar un diálogo con los miembros asignados
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Miembros Asignados'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              itemCount: memberData.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(memberData[index]['name']),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

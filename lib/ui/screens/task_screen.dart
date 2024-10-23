@@ -8,37 +8,6 @@ import 'package:logger/logger.dart'; // Importa Logger
 import 'package:app_tareas/ui/screens/add_task_screen.dart'; // Importa la nueva pantalla para agregar equipo
 import 'package:app_tareas/ui/screens/add_team_screen.dart';
 
-class PuzzlePieceClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-
-    // Dibujar rectángulo básico
-    path.moveTo(0, 0);
-    path.lineTo(
-        0,
-        size.height *
-            0.8); // Se dibuja el lado izquierdo hasta el 80% de la altura
-
-    // Parte inferior con curva para simular una pieza de rompecabezas
-    path.quadraticBezierTo(
-        size.width * 0.25, size.height, size.width * 0.5, size.height * 0.8);
-    path.quadraticBezierTo(
-        size.width * 0.75, size.height, size.width, size.height * 0.8);
-
-    path.lineTo(size.width, 0); // Lado derecho de la tarjeta
-    path.lineTo(0, 0); // Lado superior de la tarjeta
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return false;
-  }
-}
-
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
 
@@ -186,8 +155,9 @@ class TaskScreenState extends State<TaskScreen> {
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () async {
+                    final navigator = Navigator.of(context);
                     await _authService.signOut();
-                    Navigator.of(context).pushReplacementNamed('/');
+                    navigator.pushReplacementNamed('/');
                   },
                 ),
               ],
