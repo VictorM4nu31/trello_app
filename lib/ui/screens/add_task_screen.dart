@@ -169,7 +169,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             ),
           ),
           actions: <Widget>[
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Cancelar
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -189,7 +189,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 },
               ),
             ),
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Añadir
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -261,14 +261,14 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onChanged: (value) {
                     updatedTask = value;
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Ingrese la nueva tarea",
                     hintStyle: TextStyle(
-                        color: const Color(
+                        color: Color(
                             0xFFB4B4B4)), // Color del texto del hint
                     border: InputBorder.none, // Sin borde por defecto
                     contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
+                        EdgeInsets.all(16.0), // Relleno interno
                   ),
                   controller: TextEditingController(text: currentName),
                 ),
@@ -284,14 +284,14 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onChanged: (value) {
                     updatedDescription = value; // Captura la nueva descripción
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Ingrese la nueva descripción",
                     hintStyle: TextStyle(
-                        color: const Color(
+                        color: Color(
                             0xFFB4B4B4)), // Color del texto del hint
                     border: InputBorder.none, // Sin borde por defecto
                     contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
+                        EdgeInsets.all(16.0), // Relleno interno
                   ),
                   controller: TextEditingController(text: currentDescription),
                 ),
@@ -299,7 +299,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             ],
           ),
           actions: <Widget>[
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Cancelar
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -321,7 +321,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 },
               ),
             ),
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Actualizar
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -400,21 +400,21 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onChanged: (value) {
                     memberName = value;
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Ingrese el nombre del miembro",
                     hintStyle: TextStyle(
-                        color: const Color(
+                        color: Color(
                             0xFFB4B4B4)), // Color del texto del hint
                     border: InputBorder.none, // Sin borde por defecto
                     contentPadding:
-                        const EdgeInsets.all(16.0), // Relleno interno
+                        EdgeInsets.all(16.0), // Relleno interno
                   ),
                 ),
               ),
             ],
           ),
           actions: <Widget>[
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Cancelar
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -436,7 +436,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 },
               ),
             ),
-            Container(
+            SizedBox(
               width: 150, // Ancho específico para el botón Añadir
               child: TextButton(
                 style: TextButton.styleFrom(
@@ -487,7 +487,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-  void _showAssignedMembers(List<String>? assignedMembers) async {
+  void showAssignedMembers(List<String>? assignedMembers) async {
     // Asegúrate de que assignedMembers no sea null
     if (assignedMembers == null || assignedMembers.isEmpty) {
       // Manejo de caso donde no hay miembros asignados
@@ -584,12 +584,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-            Center(
+            const Center(
               // Agrega este widget para centrar el texto
               child: Text(
                 'Tareas del equipo',
                 style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(

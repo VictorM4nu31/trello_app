@@ -109,7 +109,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Form(
               key: _formKey,
               child: Column(
@@ -121,10 +121,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                       width: 160,
                       height: 160,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
-                            const Color(0xFFFFFFFF),
-                            const Color(0xFF5BC0A0),
+                            Color(0xFFFFFFFF),
+                            Color(0xFF5BC0A0),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -161,66 +161,66 @@ class RegisterScreenState extends State<RegisterScreen> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: 'Nombre',
-                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                     ),
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 125, 125, 125)),
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _surnameController,
                     decoration: InputDecoration(
                       labelText: 'Apellidos',
-                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                     ),
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 125, 125, 125)),
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Correo Electrónico',
-                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                     ),
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 125, 125, 125)),
                     validator: _validateEmail,
                   ),
                   const SizedBox(height: 16.0),
@@ -228,22 +228,22 @@ class RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
-                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                     ),
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 125, 125, 125)),
                     obscureText: true,
                     validator: _validatePassword,
                   ),
@@ -252,22 +252,22 @@ class RegisterScreenState extends State<RegisterScreen> {
                     controller: _confirmPasswordController,
                     decoration: InputDecoration(
                       labelText: 'Confirmar Contraseña',
-                      labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                      labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                        borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                       ),
                     ),
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 125, 125, 125)),
+                    style: const TextStyle(
+                        color: Color.fromARGB(255, 125, 125, 125)),
                     obscureText: true,
                     validator: _validatePassword,
                   ),
@@ -279,7 +279,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                       foregroundColor: Colors.black,
                       minimumSize: const Size(200, 50),
                       side:
-                          BorderSide(color: const Color(0xFFFFEE93), width: 2),
+                          const BorderSide(color: Color(0xFFFFEE93), width: 2),
                     ),
                     child: const Text(
                       'Registrar',

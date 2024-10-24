@@ -125,7 +125,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Color(0xFFFFEE93), // Color del borde
+                    color: const Color(0xFFFFEE93), // Color del borde
                     width: 5.0, // Grosor del borde
                   ),
                   boxShadow: [
@@ -155,7 +155,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             ),
 
             const SizedBox(height: 22),
-            Text(
+            const Text(
               'Cambiar foto', // Texto centrado
               style: TextStyle(
                 fontSize: 14.0, // Tamaño de la fuente

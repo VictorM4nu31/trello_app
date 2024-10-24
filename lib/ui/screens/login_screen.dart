@@ -55,7 +55,7 @@ class LoginScreenState extends State<LoginScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
-            constraints: BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -70,13 +70,13 @@ class LoginScreenState extends State<LoginScreen> {
                     labelText: 'Ingrese correo electrónico',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                     ),
-                    labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                    labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 157, 157, 158)),
+                  style: const TextStyle(
+                      color: Color.fromARGB(255, 157, 157, 158)),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -85,12 +85,12 @@ class LoginScreenState extends State<LoginScreen> {
                     labelText: 'Contraseña',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide(color: const Color(0xFFC9C9CA)),
+                      borderSide: const BorderSide(color: Color(0xFFC9C9CA)),
                     ),
-                    labelStyle: TextStyle(color: const Color(0xFFC9C9CA)),
+                    labelStyle: const TextStyle(color: Color(0xFFC9C9CA)),
                   ),
                   obscureText: true,
-                  style: TextStyle(color: const Color(0xFFC9C9CA)),
+                  style: const TextStyle(color: Color(0xFFC9C9CA)),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -103,11 +103,11 @@ class LoginScreenState extends State<LoginScreen> {
                       },
                       activeColor: const Color(0xFFC9C9CA),
                       checkColor: Colors.black,
-                      side: BorderSide(color: const Color(0xFFC9C9CA)),
+                      side: const BorderSide(color: Color(0xFFC9C9CA)),
                     ),
-                    Text(
+                    const Text(
                       'Acepto Términos y Condiciones',
-                      style: TextStyle(color: const Color(0xFF6BCE81)),
+                      style: TextStyle(color: Color(0xFF6BCE81)),
                     ),
                   ],
                 ),
@@ -130,9 +130,9 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
+                const Text(
                   'Ingrese con su cuenta de Google',
-                  style: TextStyle(color: const Color(0xFFC9C9CA)),
+                  style: TextStyle(color: Color(0xFFC9C9CA)),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -151,15 +151,15 @@ class LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   child: RichText(
-                    text: TextSpan(
+                    text: const TextSpan(
                       children: [
                         TextSpan(
                           text: '¿No tienes una cuenta? ',
-                          style: TextStyle(color: const Color(0xFFC9C9CA)),
+                          style: TextStyle(color: Color(0xFFC9C9CA)),
                         ),
                         TextSpan(
                           text: 'Regístrate',
-                          style: TextStyle(color: const Color(0xFF0D4533)),
+                          style: TextStyle(color: Color(0xFF0D4533)),
                         ),
                       ],
                     ),

@@ -305,8 +305,8 @@ class AddTeamScreenState extends State<AddTeamScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Contenedor para centrar el texto
-                Center(
-                  child: const Text(
+                const Center(
+                  child: Text(
                     'Miembros seleccionados:',
                     style: TextStyle(
                         fontSize: 18.0,
@@ -384,8 +384,8 @@ class AddTeamScreenState extends State<AddTeamScreen> {
                           const Color(0xFFB7F6E3), // Color de fondo
                       foregroundColor:
                           const Color(0xFF0D4533), // Color del texto
-                      side: BorderSide(
-                        color: const Color(0xFF089A6D), // Color del borde
+                      side: const BorderSide(
+                        color: Color(0xFF089A6D), // Color del borde
                         width: 2.0, // Grosor del borde
                       ),
                       shape: RoundedRectangleBorder(
