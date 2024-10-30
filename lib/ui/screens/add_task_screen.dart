@@ -19,7 +19,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> teamMembers = []; // Eliminar duplicado
-  List<String> selectedMembers = []; // Lista para almacenar los IDs de los miembros seleccionados
+  List<String> selectedMembers =
+      []; // Lista para almacenar los IDs de los miembros seleccionados
   Color? selectedColor; // Inicializar como null
 
   @override
@@ -71,7 +72,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         }));
 
         setState(() {
-          teamMembers = memberData; // Asegúrate de que esto sea una lista de mapas
+          teamMembers =
+              memberData; // Asegúrate de que esto sea una lista de mapas
         });
       }
     } catch (e) {
@@ -85,155 +87,273 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       builder: (BuildContext context) {
         String newTask = '';
         String newDescription = '';
-        return AlertDialog(
-          title: const Text('Añadir Tarea'),
-          content: SingleChildScrollView( // Permite el desplazamiento si hay muchos miembros
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0), // Espaciado interno
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  onChanged: (value) {
-                    newTask = value;
-                  },
-                  decoration: const InputDecoration(hintText: "Ingrese la nueva tarea"),
+                // Título personalizado
+                const Center(
+                  child: Text(
+                    'Añadir tarea',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
-                TextField(
-                  onChanged: (value) {
-                    newDescription = value;
-                  },
-                  decoration: const InputDecoration(hintText: "Ingrese la descripción"),
+                const SizedBox(height: 25),
+
+                // Campo para título de la nota
+                const Text(
+                  'Título de la nota',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(
+                        0xFFFFF1B0), // Color de fondo amarillo claro
+                    borderRadius: BorderRadius.circular(20.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFC7AE2B)
+                            .withOpacity(0.5), // Sombra dorada
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      newTask = value;
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Título de la tarea",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ), // Padding interno
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                const Text('Asignar a miembros:'),
-                Column(
-                  children: teamMembers.map((member) {
-                    return CheckboxListTile(
-                      title: Text(member['name']),
-                      value: selectedMembers.contains(member['id']),
-                      onChanged: (bool? selected) {
-                        setState(() {
-                          if (selected == true) {
-                            selectedMembers.add(member['id']);
-                          } else {
-                            selectedMembers.remove(member['id']);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+
+                // Campo para la descripción
+                const Text(
+                  'Descripción',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(
+                        0xFFFFF1B0), // Color de fondo amarillo claro
+                    borderRadius: BorderRadius.circular(20.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFC7AE2B)
+                            .withOpacity(0.5), // Sombra dorada
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    maxLines: 3,
+                    onChanged: (value) {
+                      newDescription = value;
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Ingrese la descripción",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ), // Padding interno
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                const Text('Seleccionar color de tarea:'),
+
+                // Responsable
+                const Text(
+                  'Responsable',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12.0), // Padding interno
+                  decoration: BoxDecoration(
+                    color: const Color(
+                        0xFFFFF1B0), // Color de fondo amarillo claro
+                    borderRadius: BorderRadius.circular(20.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFC7AE2B)
+                            .withOpacity(0.5), // Sombra dorada
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.person, color: Colors.black),
+                      SizedBox(width: 8),
+                      Text('Ingrese al responsable')
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Estado
+                const Text(
+                  'Estado',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    // Estado: Finalizado
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedColor = Colors.green; // Terminado
+                          selectedColor = const Color(0xFFB1DAA1); // Terminado
                         });
                       },
                       child: CircleAvatar(
-                        backgroundColor: Colors.green,
+                        backgroundColor: const Color(0xFFB1DAA1),
                         radius: 20,
-                        child: selectedColor == Colors.green ? const Icon(Icons.check, color: Colors.white) : null,
+                        child: selectedColor == const Color(0xFFB1DAA1)
+                            ? const Icon(Icons.check, color: Colors.white)
+                            : null,
                       ),
                     ),
+                    // Estado: En desarrollo
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedColor = Colors.yellow; // En desarrollo
+                          selectedColor =
+                              const Color((0xFFFFEE93)); // En desarrollo
                         });
                       },
                       child: CircleAvatar(
-                        backgroundColor: Colors.yellow,
+                        backgroundColor: const Color((0xFFFFEE93)),
                         radius: 20,
-                        child: selectedColor == Colors.yellow ? const Icon(Icons.check, color: Colors.black) : null,
+                        child: selectedColor == const Color((0xFFFFEE93))
+                            ? const Icon(Icons.check, color: Colors.black)
+                            : null,
                       ),
                     ),
+                    // Estado: Asignado
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedColor = Colors.red; // Asignado
+                          selectedColor = const Color(0xFFFF9393); // Asignado
                         });
                       },
                       child: CircleAvatar(
-                        backgroundColor: Colors.red,
+                        backgroundColor: const Color(0xFFFF9393),
                         radius: 20,
-                        child: selectedColor == Colors.red ? const Icon(Icons.check, color: Colors.white) : null,
+                        child: selectedColor == const Color(0xFFFF9393)
+                            ? const Icon(Icons.check, color: Colors.white)
+                            : null,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Fechas de inicio y final
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Fecha de inicio',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Fecha final',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Botón Guardar
+                Center(
+                  child: SizedBox(
+                    width: 150, // Ancho específico para el botón Guardar
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(
+                            0xFFC8E2B3), // Color de fondo verde claro
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Guardar',
+                        style: TextStyle(
+                          color: Colors.black, // Color del texto
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (newTask.isNotEmpty) {
+                          try {
+                            final user = _auth.currentUser;
+                            if (user != null) {
+                              final docRef =
+                                  await _firestore.collection('tasks').add({
+                                'name': newTask,
+                                'description': newDescription,
+                                'teamId': widget.team['id'],
+                                'userId': user.uid,
+                                'statusColor': selectedColor?.value ??
+                                    Colors.transparent.value,
+                              });
+                              setState(() {
+                                tasks.add({
+                                  'id': docRef.id,
+                                  'name': newTask,
+                                  'description': newDescription,
+                                });
+                              });
+                            }
+                          } catch (e) {
+                            logger.e('Error adding task: $e');
+                          }
+                        }
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          actions: <Widget>[
-            SizedBox(
-              width: 150, // Ancho específico para el botón Cancelar
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFC6C6C6), // Color de fondo gris
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-            SizedBox(
-              width: 150, // Ancho específico para el botón Añadir
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFC8E2B3), // Color de fondo verde
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                ),
-                child: const Text(
-                  'Añadir',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
-                  ),
-                ),
-                onPressed: () async {
-                  if (newTask.isNotEmpty) {
-                    try {
-                      final user = _auth.currentUser;
-                      if (user != null) {
-                        final docRef = await _firestore.collection('tasks').add({
-                          'name': newTask,
-                          'description': newDescription, // Agregar descripción
-                          'teamId': widget.team['id'],
-                          'userId': user.uid,
-                          'statusColor': selectedColor?.value ?? Colors.transparent.value // Manejar null
-                        });
-                        setState(() {
-                          tasks.add({
-                            'id': docRef.id,
-                            'name': newTask,
-                            'description': newDescription // Guardar descripción
-                          });
-                        });
-                      }
-                    } catch (e) {
-                      logger.e('Error adding task: $e');
-                    }
-                  }
-                  if (!context.mounted) return; // Cambiar a context.mounted
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ],
         );
       },
     );
@@ -245,124 +365,170 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
-        String updatedDescription = currentDescription; // Nueva variable para la descripción
-        return AlertDialog(
-          title: const Text('Actualizar Tarea'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    updatedTask = value;
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Ingrese la nueva tarea",
-                    hintStyle: TextStyle(
-                        color: Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        EdgeInsets.all(16.0), // Relleno interno
-                  ),
-                  controller: TextEditingController(text: currentName),
-                ),
-              ),
-              const SizedBox(height: 10), // Espaciado entre los TextFields
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    updatedDescription = value; // Captura la nueva descripción
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Ingrese la nueva descripción",
-                    hintStyle: TextStyle(
-                        color: Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        EdgeInsets.all(16.0), // Relleno interno
-                  ),
-                  controller: TextEditingController(text: currentDescription),
-                ),
-              ),
-            ],
+        String updatedDescription = currentDescription;
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
           ),
-          actions: <Widget>[
-            SizedBox(
-              width: 150, // Ancho específico para el botón Cancelar
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC6C6C6), // Color de fondo gris
-                  shape: RoundedRectangleBorder(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0), // Espaciado interno
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icono en la parte superior
+                const CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Color(0xFFE5F4DD), // Color verde claro
+                  child: Icon(
+                    Icons.edit,
+                    size: 40,
+                    color: Color(0xFF7FC47F), // Color verde
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Título centrado
+                const Text(
+                  'Actualizar Tarea',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Campo para el nombre de la tarea
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
                     borderRadius:
                         BorderRadius.circular(20.0), // Bordes redondeados
                   ),
-                ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
+                  child: TextField(
+                    onChanged: (value) {
+                      updatedTask = value;
+                    },
+                    controller: TextEditingController(text: currentName),
+                    decoration: const InputDecoration(
+                      hintText: "Ingrese la nueva tarea",
+                      hintStyle: TextStyle(
+                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
+                      ),
+                      border: InputBorder.none, // Sin borde visible
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ), // Relleno interno
+                    ),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-            SizedBox(
-              width: 150, // Ancho específico para el botón Actualizar
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC8E2B3), // Color de fondo verde
-                  shape: RoundedRectangleBorder(
+                const SizedBox(height: 16),
+
+                // Campo para la descripción de la tarea
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
                     borderRadius:
                         BorderRadius.circular(20.0), // Bordes redondeados
                   ),
-                ),
-                child: const Text(
-                  'Actualizar',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
+                  child: TextField(
+                    onChanged: (value) {
+                      updatedDescription = value;
+                    },
+                    controller: TextEditingController(text: currentDescription),
+                    decoration: const InputDecoration(
+                      hintText: "Ingrese la nueva descripción",
+                      hintStyle: TextStyle(
+                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
+                      ),
+                      border: InputBorder.none, // Sin borde visible
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ), // Relleno interno
+                    ),
                   ),
                 ),
-                onPressed: () async {
-                  if (updatedTask.isNotEmpty) {
-                    try {
-                      await _firestore.collection('tasks').doc(taskId).update({
-                        'name': updatedTask,
-                        'description':
-                            updatedDescription // Actualiza la descripción
-                      });
-                      setState(() {
-                        final index =
-                            tasks.indexWhere((task) => task['id'] == taskId);
-                        tasks[index]['name'] = updatedTask;
-                        tasks[index]['description'] =
-                            updatedDescription; // Actualiza la descripción en la lista
-                      });
-                    } catch (e) {
-                      logger.e('Error updating task: $e');
-                    }
-                  }
-                  if (!context.mounted) return; // Cambiar a context.mounted
-                  Navigator.of(context).pop();
-                },
-              ),
+                const SizedBox(height: 24),
+
+                // Botones Aceptar y Cancelar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Botón Actualizar
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFC8E2B3), // Color de fondo verde claro
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Actualizar',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (updatedTask.isNotEmpty) {
+                            try {
+                              await _firestore
+                                  .collection('tasks')
+                                  .doc(taskId)
+                                  .update({
+                                'name': updatedTask,
+                                'description': updatedDescription,
+                              });
+                              setState(() {
+                                final index = tasks
+                                    .indexWhere((task) => task['id'] == taskId);
+                                tasks[index]['name'] = updatedTask;
+                                tasks[index]['description'] =
+                                    updatedDescription;
+                              });
+                            } catch (e) {
+                              logger.e('Error updating task: $e');
+                            }
+                          }
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Botón Cancelar
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFC6C6C6), // Color de fondo gris claro
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -384,104 +550,143 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String memberName = '';
-        return AlertDialog(
-          title: const Text('Añadir Miembro'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EEEE), // Color de relleno gris
-                  borderRadius:
-                      BorderRadius.circular(20.0), // Bordes redondeados
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    memberName = value;
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Ingrese el nombre del miembro",
-                    hintStyle: TextStyle(
-                        color: Color(
-                            0xFFB4B4B4)), // Color del texto del hint
-                    border: InputBorder.none, // Sin borde por defecto
-                    contentPadding:
-                        EdgeInsets.all(16.0), // Relleno interno
-                  ),
-                ),
-              ),
-            ],
+        String memberEmail = '';
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
           ),
-          actions: <Widget>[
-            SizedBox(
-              width: 150, // Ancho específico para el botón Cancelar
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC6C6C6), // Color de fondo gris
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icono de usuario con símbolo de añadir
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Color(0xFFE5F4DD),
+                  child: Icon(
+                    Icons.person_add,
+                    size: 30,
+                    color: Color(0xFF7FC47F), // Color verde
                   ),
                 ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-            SizedBox(
-              width: 150, // Ancho específico para el botón Añadir
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFFC8E2B3), // Color de fondo verde
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                ),
-                child: const Text(
-                  'Añadir',
-                  style: TextStyle(
-                    color: Colors.black, // Color del texto
-                  ),
-                ),
-                onPressed: () async {
-                  if (memberName.isNotEmpty) {
-                    try {
-                      final userSnapshot = await _firestore
-                          .collection('users')
-                          .where('name', isEqualTo: memberName)
-                          .get();
+                const SizedBox(height: 16),
 
-                      if (userSnapshot.docs.isNotEmpty) {
-                        final userId = userSnapshot.docs.first.id;
-                        await _firestore
-                            .collection('teams')
-                            .doc(widget.team['id'])
-                            .update({
-                          'members': FieldValue.arrayUnion([userId])
-                        });
-                        // Actualizar la lista de miembros inmediatamente
-                        _fetchTeamMembers(); // Refrescar la lista de miembros
-                      }
-                    } catch (e) {
-                      logger.e('Error adding member: $e');
-                    }
-                  }
-                  if (!context.mounted) return; // Cambiar a context.mounted
-                  Navigator.of(context).pop();
-                },
-              ),
+                // Título del diálogo
+                const Text(
+                  'Agregar Miembro',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Campo de texto para ingresar correo
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Bordes redondeados
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      memberEmail = value;
+                    },
+                    decoration: const InputDecoration(
+                      hintText: "Ingresar correo",
+                      hintStyle: TextStyle(
+                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
+                      ),
+                      border: InputBorder.none, // Sin borde visible
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0,
+                      ), // Relleno interno
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Botones Aceptar y Cancelar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Botón Aceptar
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFC8E2B3), // Color de fondo verde claro
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Aceptar',
+                          style: TextStyle(
+                            color: Colors.black, // Color del texto negro
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (memberEmail.isNotEmpty) {
+                            try {
+                              // Lógica para añadir el miembro
+                              final userSnapshot = await _firestore
+                                  .collection('users')
+                                  .where('email', isEqualTo: memberEmail)
+                                  .get();
+
+                              if (userSnapshot.docs.isNotEmpty) {
+                                final userId = userSnapshot.docs.first.id;
+                                await _firestore
+                                    .collection('teams')
+                                    .doc(widget.team['id'])
+                                    .update({
+                                  'members': FieldValue.arrayUnion([userId])
+                                });
+                                _fetchTeamMembers(); // Actualizar lista de miembros
+                              }
+                            } catch (e) {
+                              logger.e('Error adding member: $e');
+                            }
+                          }
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Botón Cancelar
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFFC6C6C6), // Color de fondo gris
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            color: Colors.black, // Color del texto negro
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -526,6 +731,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
     // Mostrar un diálogo con los miembros asignados
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -588,8 +794,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               // Agrega este widget para centrar el texto
               child: Text(
                 'Tareas del equipo',
-                style:
-                    TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(

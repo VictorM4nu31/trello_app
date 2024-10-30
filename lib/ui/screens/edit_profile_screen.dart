@@ -143,12 +143,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   backgroundImage: _profileImage != null
                       ? FileImage(_profileImage!)
                       : (_photoUrl != null ? NetworkImage(_photoUrl!) : null),
+                  backgroundColor: _profileImage == null && _photoUrl == null
+                      ? Colors.grey[300] // Color de fondo si no hay imagen
+                      : null,
                   child: _profileImage == null && _photoUrl == null
                       ? const Icon(Icons.camera_alt,
                           size: 50, color: Colors.white) // Ícono de cámara
-                      : null,
-                  backgroundColor: _profileImage == null && _photoUrl == null
-                      ? Colors.grey[300] // Color de fondo si no hay imagen
                       : null,
                 ),
               ),

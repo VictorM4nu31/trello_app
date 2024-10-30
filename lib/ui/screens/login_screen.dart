@@ -13,6 +13,8 @@ class LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _acceptedTerms =
+      false; // Variable para controlar si se aceptan los términos
 
   void _loginWithEmail() async {
     final email = _emailController.text.trim();
@@ -97,17 +99,28 @@ class LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Checkbox(
-                      value: false,
+                      value: _acceptedTerms, // El valor viene de la variable
                       onChanged: (bool? value) {
-                        // Manejar el cambio de estado del checkbox
+                        setState(() {
+                          _acceptedTerms = value ??
+                              false; // Actualiza el estado del checkbox
+                        });
                       },
-                      activeColor: const Color(0xFFC9C9CA),
-                      checkColor: Colors.black,
+                      activeColor: const Color.fromARGB(255, 230, 230, 230),
+                      checkColor: const Color(0xFF6BCE81),
                       side: const BorderSide(color: Color(0xFFC9C9CA)),
                     ),
-                    const Text(
-                      'Acepto Términos y Condiciones',
-                      style: TextStyle(color: Color(0xFF6BCE81)),
+                    GestureDetector(
+                      onTap: () {
+                        _showTermsAndConditions(
+                            context); // Llama al diálogo cuando se toque el texto
+                      },
+                      child: const Text(
+                        'Acepto Términos y Condiciones',
+                        style: TextStyle(
+                          color: Color(0xFF6BCE81),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -119,7 +132,9 @@ class LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: ElevatedButton(
-                    onPressed: _loginWithEmail,
+                    onPressed: _acceptedTerms
+                        ? _loginWithEmail // Solo permite iniciar si aceptaron los términos
+                        : null, // Si no, deshabilita el botón
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB7F6E3),
                       foregroundColor: Colors.black,
@@ -172,4 +187,133 @@ class LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+void _showTermsAndConditions(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
+        ),
+        insetPadding: const EdgeInsets.all(20), // Espacio alrededor del diálogo
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 350, // Limitar el ancho máximo del diálogo
+          ),
+          child: Stack(
+            clipBehavior: Clip
+                .none, // Permite que el botón se muestre fuera del contenedor
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(20.0), // Padding interno del contenido
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 40), // Espacio para el botón de cerrar
+                    Center(
+                      child: Text(
+                        'Términos y Condiciones',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Texto de la fecha de vigencia
+                    Text(
+                      'Fecha de entrada en vigencia:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '02 de Octubre de 2024',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+
+                    // Contenido de los términos y condiciones
+                    Text(
+                      'Bienvenido a Sunshine Note. Al acceder y utilizar la Aplicación, '
+                      'aceptas cumplir con estos Términos y Condiciones de Uso. Si no '
+                      'estás de acuerdo con alguno de estos Términos, por favor, no utilices la Aplicación.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                      '1. Aceptación de los Términos',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      'Al registrarte en la Aplicación, confirmas que has leído, entendido y aceptas estos Términos, '
+                      'así como nuestra Política de Privacidad.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              ),
+
+              // Botón de cerrar circular
+              Positioned(
+                top: 15,
+                right: 15,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop(); // Cerrar el diálogo
+                  },
+                  child: Container(
+                    width: 35,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border:
+                          Border.all(color: const Color(0xFF97CE6B), width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4), // Sombra suave
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Color(0xFF97CE6B),
+                      size: 25,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
