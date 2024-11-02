@@ -7,6 +7,7 @@ import 'package:app_tareas/services/auth_service.dart'; // Importa AuthService
 import 'package:logger/logger.dart'; // Importa Logger
 import 'package:app_tareas/ui/screens/add_task_screen.dart'; // Importa la nueva pantalla para agregar equipo
 import 'package:app_tareas/ui/screens/add_team_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -20,16 +21,19 @@ class TaskScreenState extends State<TaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthService _authService = AuthService(); // Instancia de AuthService
   final Logger _logger = Logger(); // Instancia de Logger
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   late User? _currentUser;
   List<Map<String, dynamic>> _teams = [];
   bool _isLoading = true;
+  String? _profileImageUrl;
 
   @override
   void initState() {
     super.initState();
     _currentUser = _auth.currentUser;
     _fetchTeams();
+    _fetchProfileImageUrl();
   }
 
   Future<void> _fetchTeams() async {
@@ -70,6 +74,26 @@ class TaskScreenState extends State<TaskScreen> {
     }
   }
 
+  Future<String?> _getProfileImageUrl() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      try {
+        final ref = _storage.ref().child('profile_images/${user.uid}');
+        String downloadUrl = await ref.getDownloadURL();
+        return downloadUrl;
+      } catch (e) {
+        _logger.e('Error al obtener la URL de la imagen de perfil: $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _fetchProfileImageUrl() async {
+    _profileImageUrl = await _getProfileImageUrl();
+    setState(() {}); // Actualiza el estado para que se reconstruya el widget
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_currentUser != null) {
@@ -108,10 +132,10 @@ class TaskScreenState extends State<TaskScreen> {
                       );
                     },
                     child: CircleAvatar(
-                      backgroundImage: _currentUser?.photoURL != null
-                          ? NetworkImage(_currentUser!.photoURL!)
+                      backgroundImage: _profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                          ? NetworkImage(_profileImageUrl!)
                           : null,
-                      child: _currentUser?.photoURL == null
+                      child: _profileImageUrl == null || _profileImageUrl!.isEmpty
                           ? const Icon(Icons.person)
                           : null,
                     ),
