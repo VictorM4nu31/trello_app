@@ -18,16 +18,20 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> tasks = [];
-  List<Map<String, dynamic>> teamMembers = []; // Eliminar duplicado
-  List<String> selectedMembers =
-      []; // Lista para almacenar los IDs de los miembros seleccionados
-  Color? selectedColor; // Inicializar como null
+  List<Map<String, dynamic>> teamMembers = [];
+  List<String> selectedMembers = [];
+  Color? selectedColor;
+
+  // Nuevas variables para la búsqueda de miembros
+  List<Map<String, dynamic>> searchResults =
+      []; // Lista para almacenar resultados de búsqueda
+  bool isSearching = false; // Bandera para indicar si se está buscando
 
   @override
   void initState() {
     super.initState();
     _fetchTasks();
-    _fetchTeamMembers(); // Llamar a la función para obtener los miembros del equipo
+    _fetchTeamMembers();
   }
 
   Future<void> _fetchTasks() async {
@@ -67,7 +71,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           return {
             'id': id,
             'name': userDoc['name'],
-            'photoUrl': userDoc['photoUrl'],
+            'photoUrl': userDoc.data()?['photoUrl'] ?? '',
           };
         }));
 
@@ -550,146 +554,27 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String memberEmail = '';
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icono de usuario con símbolo de añadir
-                const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Color(0xFFE5F4DD),
-                  child: Icon(
-                    Icons.person_add,
-                    size: 30,
-                    color: Color(0xFF7FC47F), // Color verde
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Título del diálogo
-                const Text(
-                  'Agregar Miembro',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Campo de texto para ingresar correo
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      memberEmail = value;
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Ingresar correo",
-                      hintStyle: TextStyle(
-                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
-                      ),
-                      border: InputBorder.none, // Sin borde visible
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ), // Relleno interno
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Botones Aceptar y Cancelar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Botón Aceptar
-                    Expanded(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFC8E2B3), // Color de fondo verde claro
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Aceptar',
-                          style: TextStyle(
-                            color: Colors.black, // Color del texto negro
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (memberEmail.isNotEmpty) {
-                            try {
-                              // Lógica para añadir el miembro
-                              final userSnapshot = await _firestore
-                                  .collection('users')
-                                  .where('email', isEqualTo: memberEmail)
-                                  .get();
-
-                              if (userSnapshot.docs.isNotEmpty) {
-                                final userId = userSnapshot.docs.first.id;
-                                await _firestore
-                                    .collection('teams')
-                                    .doc(widget.team['id'])
-                                    .update({
-                                  'members': FieldValue.arrayUnion([userId])
-                                });
-                                _fetchTeamMembers(); // Actualizar lista de miembros
-                              }
-                            } catch (e) {
-                              logger.e('Error adding member: $e');
-                            }
-                          }
-                          if (!context.mounted) return;
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Botón Cancelar
-                    Expanded(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFFC6C6C6), // Color de fondo gris
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            color: Colors.black, // Color del texto negro
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        return AddMemberDialog(
+          onMemberAdded: (userId) {
+            _addMemberToTeam(userId);
+            Navigator.of(context).pop();
+          },
+          auth: _auth,
+          firestore: _firestore,
         );
       },
     );
+  }
+
+  void _addMemberToTeam(String userId) async {
+    try {
+      await _firestore.collection('teams').doc(widget.team['id']).update({
+        'members': FieldValue.arrayUnion([userId])
+      });
+      _fetchTeamMembers(); // Actualizar lista de miembros
+    } catch (e) {
+      logger.e('Error adding member to team: $e');
+    }
   }
 
   void showAssignedMembers(List<String>? assignedMembers) async {
@@ -918,5 +803,155 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation
           .centerFloat, // Ubica los botones centrados horizontalmente
     );
+  }
+}
+
+// Nuevo widget para el diálogo de agregar miembro
+class AddMemberDialog extends StatefulWidget {
+  final Function(String) onMemberAdded;
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
+
+  const AddMemberDialog({super.key, required this.onMemberAdded, required this.auth, required this.firestore});
+
+  @override
+  AddMemberDialogState createState() => AddMemberDialogState();
+}
+
+class AddMemberDialogState extends State<AddMemberDialog> {
+  String memberEmail = '';
+  List<Map<String, dynamic>> searchResults = [];
+  bool isSearching = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 30,
+              backgroundColor: Color(0xFFE5F4DD),
+              child: Icon(Icons.person_add, size: 30, color: Color(0xFF7FC47F)),
+            ),
+            const SizedBox(height: 16),
+            const Text('Agregar Miembro',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                  color: const Color(0xFFF0EEEE),
+                  borderRadius: BorderRadius.circular(20.0)),
+              child: TextField(
+                onChanged: (value) {
+                  memberEmail = value;
+                  if (memberEmail.isNotEmpty) {
+                    _searchUsers(memberEmail); // Llama a la función de búsqueda
+                  } else {
+                    setState(() {
+                      searchResults = []; // Restablecer resultados si la consulta está vacía
+                      isSearching = false; // Indica que no se está buscando
+                    });
+                  }
+                },
+                decoration: const InputDecoration(
+                  hintText: "Ingresar correo",
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 12.0),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            isSearching
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: searchResults.length,
+                      itemBuilder: (context, index) {
+                        final user = searchResults[index];
+                        return ListTile(
+                          title: Text(user['name']),
+                          subtitle: Text(user['email']),
+                          onTap: () {
+                            widget.onMemberAdded(user['id']);
+                          },
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFFC8E2B3)),
+                    child: const Text('Aceptar',
+                        style: TextStyle(color: Colors.black)),
+                    onPressed: () {
+                      // Aquí puedes manejar la lógica de aceptación si es necesario
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFFC6C6C6)),
+                    child: const Text('Cancelar',
+                        style: TextStyle(color: Colors.black)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _searchUsers(String query) async {
+    print('Buscando usuarios con el nombre: $query'); // Mensaje de depuración
+    if (query.isNotEmpty) {
+      final user = widget.auth.currentUser; // Obtén el usuario autenticado
+      if (user != null) {
+        try {
+          final results = await widget.firestore
+              .collection('users')
+              .where('name', isGreaterThanOrEqualTo: query) // Cambiar a 'name'
+              .where('name', isLessThanOrEqualTo: query + '\uf8ff') // Para buscar coincidencias
+              .get();
+
+          print('Resultados encontrados: ${results.docs.length}'); // Mensaje de depuración
+
+          setState(() {
+            searchResults = results.docs
+                .map((doc) => {
+                      'id': doc.id,
+                      'name': doc['name'],
+                      'email': doc['email'], // Asegúrate de incluir el email si lo necesitas
+                    })
+                .toList();
+            isSearching = true; // Indica que se está buscando
+          });
+        } catch (e) {
+          logger.e('Error fetching users: $e'); // Imprime el error en la consola
+        }
+      }
+    } else {
+      setState(() {
+        searchResults = []; // Restablecer resultados si la consulta está vacía
+        isSearching = false; // Indica que no se está buscando
+      });
+    }
   }
 }
