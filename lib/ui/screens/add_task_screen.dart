@@ -27,6 +27,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       []; // Lista para almacenar resultados de búsqueda
   bool isSearching = false; // Bandera para indicar si se está buscando
 
+  String? selectedResponsible;
+
   @override
   void initState() {
     super.initState();
@@ -190,31 +192,54 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
                 // Responsable
                 const Text(
-                  'Responsable',
+                  'Seleccionar responsable:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.all(12.0), // Padding interno
                   decoration: BoxDecoration(
-                    color: const Color(
-                        0xFFFFF1B0), // Color de fondo amarillo claro
-                    borderRadius: BorderRadius.circular(20.0),
+                    color: const Color(0xFFFFF1B0), // Color de fondo amarillo claro
+                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFC7AE2B)
-                            .withOpacity(0.5), // Sombra dorada
+                        color: const Color(0xFFC7AE2B).withOpacity(0.5), // Sombra dorada
                         blurRadius: 6,
                         offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.person, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text('Ingrese al responsable')
-                    ],
+                  child: DropdownButton<String>(
+                    value: selectedResponsible,
+                    hint: const Text('Selecciona un responsable'),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedResponsible = newValue;
+                      });
+                    },
+                    items: teamMembers.map<DropdownMenuItem<String>>((member) {
+                      return DropdownMenuItem<String>(
+                        value: member['id'],
+                        child: Text(
+                          member['name'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    dropdownColor: Colors.white,
+                    underline: Container(
+                      height: 2,
+                      color: Colors.transparent, // Sin subrayado visible
+                    ),
+                    isExpanded: true, // Para que ocupe todo el ancho del contenedor
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -336,6 +361,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                 'userId': user.uid,
                                 'statusColor': selectedColor?.value ??
                                     Colors.transparent.value,
+                                'responsibleId': selectedResponsible,
                               });
                               setState(() {
                                 tasks.add({
@@ -568,10 +594,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   void _addMemberToTeam(String userId) async {
     try {
-      await _firestore.collection('teams').doc(widget.team['id']).update({
-        'members': FieldValue.arrayUnion([userId])
-      });
-      _fetchTeamMembers(); // Actualizar lista de miembros
+      if (!selectedMembers.contains(userId)) {
+        await _firestore.collection('teams').doc(widget.team['id']).update({
+          'members': FieldValue.arrayUnion([userId])
+        });
+        _fetchTeamMembers(); // Actualizar lista de miembros
+      }
     } catch (e) {
       logger.e('Error adding member to team: $e');
     }
