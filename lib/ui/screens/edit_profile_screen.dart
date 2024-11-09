@@ -40,7 +40,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       _nameController.text = userProfile['name'] ?? '';
       _surnameController.text = userProfile['surname'] ?? '';
       _emailController.text = user.email ?? '';
-      _photoUrl = userProfile['photoUrl'];
+      
+      final data = userProfile.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('photoUrl')) {
+        _photoUrl = data['photoUrl'];
+      } else {
+        _photoUrl = null;
+      }
+      
       setState(() {});
     }
   }
@@ -71,6 +78,9 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           'surname': _surnameController.text,
           'photoUrl': _photoUrl,
         });
+
+        setState(() {});
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Perfil actualizado con éxito')),

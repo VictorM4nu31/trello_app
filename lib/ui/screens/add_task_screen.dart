@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
+import 'package:app_tareas/ui/screens/widgets/add_task_widget.dart';
 
 final logger = Logger();
 
@@ -23,9 +24,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   Color? selectedColor;
 
   // Nuevas variables para la búsqueda de miembros
-  List<Map<String, dynamic>> searchResults =
-      []; // Lista para almacenar resultados de búsqueda
-  bool isSearching = false; // Bandera para indicar si se está buscando
+  List<Map<String, dynamic>> searchResults = [];
+  bool isSearching = false;
 
   String? selectedResponsible;
 
@@ -51,7 +51,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               .map((doc) => {
                     'id': doc.id,
                     'name': doc['name'],
-                    'description': doc['description'] // Agregar descripción
+                    'description': doc['description']
                   })
               .toList();
         });
@@ -78,8 +78,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         }));
 
         setState(() {
-          teamMembers =
-              memberData; // Asegúrate de que esto sea una lista de mapas
+          teamMembers = memberData;
         });
       }
     } catch (e) {
@@ -91,299 +90,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String newTask = '';
-        String newDescription = '';
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0), // Espaciado interno
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Título personalizado
-                const Center(
-                  child: Text(
-                    'Añadir tarea',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-
-                // Campo para título de la nota
-                const Text(
-                  'Título de la nota',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(
-                        0xFFFFF1B0), // Color de fondo amarillo claro
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFC7AE2B)
-                            .withOpacity(0.5), // Sombra dorada
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      newTask = value;
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Título de la tarea",
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ), // Padding interno
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Campo para la descripción
-                const Text(
-                  'Descripción',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(
-                        0xFFFFF1B0), // Color de fondo amarillo claro
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFC7AE2B)
-                            .withOpacity(0.5), // Sombra dorada
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    maxLines: 3,
-                    onChanged: (value) {
-                      newDescription = value;
-                    },
-                    decoration: const InputDecoration(
-                      hintText: "Ingrese la descripción",
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ), // Padding interno
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Responsable
-                const Text(
-                  'Seleccionar responsable:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF1B0), // Color de fondo amarillo claro
-                    borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFC7AE2B).withOpacity(0.5), // Sombra dorada
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: DropdownButton<String>(
-                    value: selectedResponsible,
-                    hint: const Text('Selecciona un responsable'),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedResponsible = newValue;
-                      });
-                    },
-                    items: teamMembers.map<DropdownMenuItem<String>>((member) {
-                      return DropdownMenuItem<String>(
-                        value: member['id'],
-                        child: Text(
-                          member['name'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    dropdownColor: Colors.white,
-                    underline: Container(
-                      height: 2,
-                      color: Colors.transparent, // Sin subrayado visible
-                    ),
-                    isExpanded: true, // Para que ocupe todo el ancho del contenedor
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Estado
-                const Text(
-                  'Estado',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Estado: Finalizado
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedColor = const Color(0xFFB1DAA1); // Terminado
-                        });
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: const Color(0xFFB1DAA1),
-                        radius: 20,
-                        child: selectedColor == const Color(0xFFB1DAA1)
-                            ? const Icon(Icons.check, color: Colors.white)
-                            : null,
-                      ),
-                    ),
-                    // Estado: En desarrollo
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedColor =
-                              const Color((0xFFFFEE93)); // En desarrollo
-                        });
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: const Color((0xFFFFEE93)),
-                        radius: 20,
-                        child: selectedColor == const Color((0xFFFFEE93))
-                            ? const Icon(Icons.check, color: Colors.black)
-                            : null,
-                      ),
-                    ),
-                    // Estado: Asignado
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedColor = const Color(0xFFFF9393); // Asignado
-                        });
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: const Color(0xFFFF9393),
-                        radius: 20,
-                        child: selectedColor == const Color(0xFFFF9393)
-                            ? const Icon(Icons.check, color: Colors.white)
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Fechas de inicio y final
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Fecha de inicio',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Fecha final',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Botón Guardar
-                Center(
-                  child: SizedBox(
-                    width: 150, // Ancho específico para el botón Guardar
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(
-                            0xFFC8E2B3), // Color de fondo verde claro
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Guardar',
-                        style: TextStyle(
-                          color: Colors.black, // Color del texto
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: () async {
-                        if (newTask.isNotEmpty) {
-                          try {
-                            final user = _auth.currentUser;
-                            if (user != null) {
-                              final docRef =
-                                  await _firestore.collection('tasks').add({
-                                'name': newTask,
-                                'description': newDescription,
-                                'teamId': widget.team['id'],
-                                'userId': user.uid,
-                                'statusColor': selectedColor?.value ??
-                                    Colors.transparent.value,
-                                'responsibleId': selectedResponsible,
-                              });
-                              setState(() {
-                                tasks.add({
-                                  'id': docRef.id,
-                                  'name': newTask,
-                                  'description': newDescription,
-                                });
-                              });
-                            }
-                          } catch (e) {
-                            logger.e('Error adding task: $e');
-                          }
-                        }
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return AddTaskWidget(
+          team: widget.team,
+          teamMembers: teamMembers,
         );
       },
     );
@@ -840,7 +549,11 @@ class AddMemberDialog extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
 
-  const AddMemberDialog({super.key, required this.onMemberAdded, required this.auth, required this.firestore});
+  const AddMemberDialog(
+      {super.key,
+      required this.onMemberAdded,
+      required this.auth,
+      required this.firestore});
 
   @override
   AddMemberDialogState createState() => AddMemberDialogState();
@@ -882,7 +595,8 @@ class AddMemberDialogState extends State<AddMemberDialog> {
                     _searchUsers(memberEmail); // Llama a la función de búsqueda
                   } else {
                     setState(() {
-                      searchResults = []; // Restablecer resultados si la consulta está vacía
+                      searchResults =
+                          []; // Restablecer resultados si la consulta está vacía
                       isSearching = false; // Indica que no se está buscando
                     });
                   }
@@ -890,8 +604,8 @@ class AddMemberDialogState extends State<AddMemberDialog> {
                 decoration: const InputDecoration(
                   hintText: "Ingresar correo",
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 12.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 ),
               ),
             ),
@@ -948,7 +662,8 @@ class AddMemberDialogState extends State<AddMemberDialog> {
   }
 
   void _searchUsers(String query) async {
-    print('Buscando usuarios con el nombre: $query'); // Mensaje de depuración
+    logger
+        .d('Buscando usuarios con el nombre: $query'); // Mensaje de depuración
     if (query.isNotEmpty) {
       final user = widget.auth.currentUser; // Obtén el usuario autenticado
       if (user != null) {
@@ -956,23 +671,28 @@ class AddMemberDialogState extends State<AddMemberDialog> {
           final results = await widget.firestore
               .collection('users')
               .where('name', isGreaterThanOrEqualTo: query) // Cambiar a 'name'
-              .where('name', isLessThanOrEqualTo: query + '\uf8ff') // Para buscar coincidencias
+              .where('name',
+                  isLessThanOrEqualTo:
+                      '$query\uf8ff') // Para buscar coincidencias
               .get();
 
-          print('Resultados encontrados: ${results.docs.length}'); // Mensaje de depuración
+          logger.d(
+              'Resultados encontrados: ${results.docs.length}'); // Mensaje de depuración
 
           setState(() {
             searchResults = results.docs
                 .map((doc) => {
                       'id': doc.id,
                       'name': doc['name'],
-                      'email': doc['email'], // Asegúrate de incluir el email si lo necesitas
+                      'email': doc[
+                          'email'], // Asegúrate de incluir el email si lo necesitas
                     })
                 .toList();
             isSearching = true; // Indica que se está buscando
           });
         } catch (e) {
-          logger.e('Error fetching users: $e'); // Imprime el error en la consola
+          logger
+              .e('Error fetching users: $e'); // Imprime el error en la consola
         }
       }
     } else {
