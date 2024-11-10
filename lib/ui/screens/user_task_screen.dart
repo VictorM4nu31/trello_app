@@ -14,34 +14,13 @@ class UserTasksScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left,
-            color: Color(0xFFFFEE93), // Color de la flecha FFEE93
-            size: 45, // Tamaño de la flecha (puedes cambiar este valor)
+            color: Color(0xFFFFEE93),
+            size: 45,
           ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.edit, color: Colors.black),
-              label: const Text(
-                'Editar',
-                style: TextStyle(color: Colors.black),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFEE93), // Amarillo claro
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-              onPressed: () {
-                // Acción para editar el perfil
-              },
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -49,30 +28,6 @@ class UserTasksScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-
-            // Información del usuario
-            const Center(
-              child: Column(
-                children: [
-                  Text(
-                    'Nombre del usuario',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'sucorreo@gmail.com',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 25),
 
             const Center(
               child: Column(
@@ -94,9 +49,9 @@ class UserTasksScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatusButton('Tarea', const Color(0xFFB1DAA1)),
+                _buildStatusButton('Finalizado', const Color(0xFFB1DAA1)),
                 _buildStatusButton('Desarrollo', const Color(0xFFFFEE93)),
-                _buildStatusButton('Finalizado', const Color(0xFFFF9393)),
+                _buildStatusButton('No iniciado', const Color(0xFFFF9393)),
               ],
             ),
             const SizedBox(height: 16),
@@ -137,73 +92,6 @@ class UserTasksScreen extends StatelessWidget {
                     },
                   );
                 },
-              ),
-            ),
-
-            // Tarjeta Nube (estado de conexión y configuración)
-            const SizedBox(height: 16),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFEE93), // Fondo amarillo claro
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'NUBE',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              'Conectado',
-                              style: TextStyle(color: Colors.green),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.circle, color: Colors.green, size: 12),
-                          ],
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Acción para ir a configuración
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 3,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Text(
-                        'Configuración',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
