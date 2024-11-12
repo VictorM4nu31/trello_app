@@ -21,27 +21,6 @@ class UserTasksScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.edit, color: Colors.black),
-              label: const Text(
-                'Editar',
-                style: TextStyle(color: Colors.black),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFFEE93), // Amarillo claro
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-              onPressed: () {
-                // Acción para editar el perfil
-              },
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -157,10 +136,10 @@ class UserTasksScreen extends StatelessWidget {
                   ],
                 ),
                 padding: const EdgeInsets.all(20),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -181,26 +160,6 @@ class UserTasksScreen extends StatelessWidget {
                           ],
                         ),
                       ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Acción para ir a configuración
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 3,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Text(
-                        'Configuración',
-                        style: TextStyle(color: Colors.black),
-                      ),
                     ),
                   ],
                 ),
