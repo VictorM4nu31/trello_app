@@ -40,7 +40,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       _nameController.text = userProfile['name'] ?? '';
       _surnameController.text = userProfile['surname'] ?? '';
       _emailController.text = user.email ?? '';
-      _photoUrl = userProfile['photoUrl'];
+      
+      final data = userProfile.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('photoUrl')) {
+        _photoUrl = data['photoUrl'];
+      } else {
+        _photoUrl = null;
+      }
+      
       setState(() {});
     }
   }
@@ -63,23 +70,30 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           final ref = _storage.ref().child('profile_images/${user.uid}');
           await ref.putFile(_profileImage!);
           _photoUrl = await ref.getDownloadURL();
+          
+          await _firestore.collection('users').doc(user.uid).update({
+            'photoUrl': _photoUrl,
+          });
+        }
+
+        if (_passwordController.text.isNotEmpty) {
+          await user.updatePassword(_passwordController.text);
         }
 
         await user.verifyBeforeUpdateEmail(_emailController.text);
         await _firestore.collection('users').doc(user.uid).update({
           'name': _nameController.text,
           'surname': _surnameController.text,
-          'photoUrl': _photoUrl,
         });
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Perfil actualizado con éxito')),
           );
-          Navigator.of(context).pop(true); // Regresar a la pantalla anterior y pasar un valor true
+          Navigator.of(context).pop(); // Regresa a la pantalla anterior
         }
       } catch (e) {
         if (mounted) {
-          // Verifica si el widget está montad
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error al actualizar el perfil')),
           );

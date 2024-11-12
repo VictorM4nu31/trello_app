@@ -165,6 +165,7 @@ class UserTasksScreen extends StatelessWidget {
                 ),
               ),
             ),
+            // Resto del código
           ],
         ),
       ),
