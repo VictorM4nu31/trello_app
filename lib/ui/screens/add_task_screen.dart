@@ -99,97 +99,175 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void _updateTask(
-      String taskId, String currentName, String currentDescription) {
+      String taskId, String currentName, String currentDescription, DateTime? startDate, DateTime? endDate, String? currentStatus) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String updatedTask = currentName;
         String updatedDescription = currentDescription;
+        DateTime updatedStartDate = startDate ?? DateTime.now();
+        DateTime updatedEndDate = endDate ?? DateTime.now();
+        String updatedStatus = currentStatus ?? 'No Iniciado';
 
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20.0), // Bordes redondeados del cuadro
+            borderRadius: BorderRadius.circular(20.0),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(20.0), // Espaciado interno
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icono en la parte superior
-                const CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Color(0xFFE5F4DD), // Color verde claro
-                  child: Icon(
-                    Icons.edit,
-                    size: 40,
-                    color: Color(0xFF7FC47F), // Color verde
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Título centrado
+                // Título
                 const Text(
                   'Actualizar Tarea',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
 
-                // Campo para el nombre de la tarea
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      updatedTask = value;
-                    },
-                    controller: TextEditingController(text: currentName),
-                    decoration: const InputDecoration(
-                      hintText: "Ingrese la nueva tarea",
-                      hintStyle: TextStyle(
-                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
-                      ),
-                      border: InputBorder.none, // Sin borde visible
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ), // Relleno interno
+                // Campo para el título
+                const Text('Título', style: TextStyle(fontSize: 16)),
+                TextField(
+                  onChanged: (value) {
+                    updatedTask = value;
+                  },
+                  controller: TextEditingController(text: updatedTask),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF0EEEE), // Color de fondo
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none, // Sin borde visible
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Campo para la descripción de la tarea
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0EEEE), // Color de fondo gris claro
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Bordes redondeados
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      updatedDescription = value;
-                    },
-                    controller: TextEditingController(text: currentDescription),
-                    decoration: const InputDecoration(
-                      hintText: "Ingrese la nueva descripción",
-                      hintStyle: TextStyle(
-                        color: Color(0xFFB4B4B4), // Color del hint (gris claro)
-                      ),
-                      border: InputBorder.none, // Sin borde visible
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 12.0,
-                      ), // Relleno interno
+                // Campo para la descripción
+                const Text('Descripción', style: TextStyle(fontSize: 16)),
+                TextField(
+                  onChanged: (value) {
+                    updatedDescription = value;
+                  },
+                  controller: TextEditingController(text: updatedDescription),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF0EEEE), // Color de fondo
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none, // Sin borde visible
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+
+                // Campo para la fecha de inicio
+                const Text('Fecha de inicio', style: TextStyle(fontSize: 16)),
+                TextField(
+                  readOnly: true, // Hace que el campo sea solo lectura
+                  controller: TextEditingController(text: updatedStartDate.toLocal().toString().split(' ')[0]), // Muestra la fecha
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
+                    filled: true,
+                    fillColor: const Color(0xFFF0EEEE), // Color de fondo
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none, // Sin borde visible
+                    ),
+                  ),
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: updatedStartDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        updatedStartDate = pickedDate; // Actualiza la fecha seleccionada
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Campo para la fecha de fin
+                const Text('Fecha de fin', style: TextStyle(fontSize: 16)),
+                TextField(
+                  readOnly: true, // Hace que el campo sea solo lectura
+                  controller: TextEditingController(text: updatedEndDate.toLocal().toString().split(' ')[0]), // Muestra la fecha
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
+                    filled: true,
+                    fillColor: const Color(0xFFF0EEEE), // Color de fondo
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none, // Sin borde visible
+                    ),
+                  ),
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: updatedEndDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        updatedEndDate = pickedDate; // Actualiza la fecha seleccionada
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Campo para el estado
+                const Text('Estado', style: TextStyle(fontSize: 16)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Estado: Finalizado
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: updatedStatus == 'Finalizado' ? Colors.green : Colors.transparent,
+                        side: BorderSide(color: Colors.green),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          updatedStatus = 'Finalizado';
+                        });
+                      },
+                      child: const Text('Finalizado', style: TextStyle(color: Colors.black)),
+                    ),
+                    
+                    // Estado: En desarrollo
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: updatedStatus == 'En desarrollo' ? Colors.orange : Colors.transparent,
+                        side: BorderSide(color: Colors.orange),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          updatedStatus = 'En desarrollo';
+                        });
+                      },
+                      child: const Text('En desarrollo', style: TextStyle(color: Colors.black)),
+                    ),
+                    
+                    // Estado: No Iniciado
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: updatedStatus == 'No Iniciado' ? Colors.red : Colors.transparent,
+                        side: BorderSide(color: Colors.red),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          updatedStatus = 'No Iniciado';
+                        });
+                      },
+                      child: const Text('No Iniciado', style: TextStyle(color: Colors.black)),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
 
@@ -201,35 +279,29 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     Expanded(
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFC8E2B3), // Color de fondo verde claro
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
+                          backgroundColor: const Color(0xFFC8E2B3),
                         ),
                         child: const Text(
                           'Actualizar',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.black),
                         ),
                         onPressed: () async {
                           if (updatedTask.isNotEmpty) {
                             try {
-                              await _firestore
-                                  .collection('tasks')
-                                  .doc(taskId)
-                                  .update({
+                              await _firestore.collection('tasks').doc(taskId).update({
                                 'name': updatedTask,
                                 'description': updatedDescription,
+                                'startDate': updatedStartDate,
+                                'endDate': updatedEndDate,
+                                'status': updatedStatus,
                               });
                               setState(() {
-                                final index = tasks
-                                    .indexWhere((task) => task['id'] == taskId);
+                                final index = tasks.indexWhere((task) => task['id'] == taskId);
                                 tasks[index]['name'] = updatedTask;
-                                tasks[index]['description'] =
-                                    updatedDescription;
+                                tasks[index]['description'] = updatedDescription;
+                                tasks[index]['startDate'] = updatedStartDate;
+                                tasks[index]['endDate'] = updatedEndDate;
+                                tasks[index]['status'] = updatedStatus;
                               });
                             } catch (e) {
                               logger.e('Error updating task: $e');
@@ -245,18 +317,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     Expanded(
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFC6C6C6), // Color de fondo gris claro
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
+                          backgroundColor: const Color(0xFFC6C6C6),
                         ),
                         child: const Text(
                           'Cancelar',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Colors.black),
                         ),
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -283,6 +348,70 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     } catch (e) {
       logger.e('Error deleting task: $e');
     }
+  }
+
+  Future<void> _showDeleteTaskWarning(String taskId) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Column(
+            children: [
+              const CircleAvatar(
+                radius: 30,
+                backgroundColor: Color(0xFFFF9393), // Color de fondo
+                child: Icon(Icons.delete, color: Colors.white), // Ícono de papelera
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '¿Desea eliminar la tarea?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          content: const Text(
+            'Recuerda que la tarea eliminada no se podrá recuperar.',
+            textAlign: TextAlign.center,
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFC8E2B3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  child: const Text('Aceptar', style: TextStyle(color: Colors.black)),
+                  onPressed: () async {
+                    await _deleteTask(taskId); // Llama al método de eliminación
+                    Navigator.of(context).pop(); // Cierra el diálogo
+                  },
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFC6C6C6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  child: const Text('Cancelar', style: TextStyle(color: Colors.black)),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Cierra el diálogo
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _addMember() {
@@ -478,6 +607,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                       tasks[index]['id'],
                                       tasks[index]['name'],
                                       tasks[index]['description'],
+                                      tasks[index]['startDate'],
+                                      tasks[index]['endDate'],
+                                      tasks[index]['status'],
                                     ),
                                   ),
                                   Container(
@@ -490,7 +622,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                       icon: const Icon(Icons.delete,
                                           color: Colors.white),
                                       onPressed: () =>
-                                          _deleteTask(tasks[index]['id']),
+                                          _showDeleteTaskWarning(tasks[index]['id']),
                                     ),
                                   ),
                                 ],
