@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 import 'package:app_tareas/ui/screens/widgets/add_task_widget.dart';
+import 'package:intl/intl.dart';
+
 
 final logger = Logger();
 
@@ -102,11 +104,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       String taskId, String currentName, String currentDescription, DateTime? startDate, DateTime? endDate, String? currentStatus) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext context) { 
         String updatedTask = currentName;
         String updatedDescription = currentDescription;
-        DateTime updatedStartDate = startDate ?? DateTime.now();
-        DateTime updatedEndDate = endDate ?? DateTime.now();
+        DateTime? updatedStartDate = startDate;
+        DateTime? updatedEndDate = endDate;
         String updatedStatus = currentStatus ?? 'No Iniciado';
 
         return Dialog(
@@ -164,8 +166,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 // Campo para la fecha de inicio
                 const Text('Fecha de inicio', style: TextStyle(fontSize: 16)),
                 TextField(
-                  readOnly: true, // Hace que el campo sea solo lectura
-                  controller: TextEditingController(text: updatedStartDate.toLocal().toString().split(' ')[0]), // Muestra la fecha
+                  readOnly: true,
+                  controller: TextEditingController(text: updatedStartDate != null ? DateFormat('yyyy-MM-dd').format(updatedStartDate) : ''), // Formato de fecha
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
                     filled: true,
@@ -178,13 +180,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: updatedStartDate,
+                      initialDate: updatedStartDate ?? DateTime.now(), // Usa la fecha existente o la fecha actual
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
                       setState(() {
-                        updatedStartDate = pickedDate; // Actualiza la fecha seleccionada
+                        updatedStartDate = pickedDate; // Actualiza solo si se selecciona una nueva fecha
                       });
                     }
                   },
@@ -194,8 +196,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 // Campo para la fecha de fin
                 const Text('Fecha de fin', style: TextStyle(fontSize: 16)),
                 TextField(
-                  readOnly: true, // Hace que el campo sea solo lectura
-                  controller: TextEditingController(text: updatedEndDate.toLocal().toString().split(' ')[0]), // Muestra la fecha
+                  readOnly: true,
+                  controller: TextEditingController(text: updatedEndDate != null ? DateFormat('yyyy-MM-dd').format(updatedEndDate) : ''), // Formato de fecha
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
                     filled: true,
@@ -208,13 +210,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: updatedEndDate,
+                      initialDate: updatedEndDate ?? DateTime.now(), // Usa la fecha existente o la fecha actual
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
                       setState(() {
-                        updatedEndDate = pickedDate; // Actualiza la fecha seleccionada
+                        updatedEndDate = pickedDate; // Actualiza solo si se selecciona una nueva fecha
                       });
                     }
                   },
