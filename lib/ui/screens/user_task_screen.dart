@@ -1,10 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class UserTasksScreen extends StatelessWidget {
+class UserTasksScreen extends StatefulWidget {
   final String userId;
 
   const UserTasksScreen({super.key, required this.userId});
+
+  @override
+  _UserTasksScreenState createState() => _UserTasksScreenState();
+}
+
+class _UserTasksScreenState extends State<UserTasksScreen> {
+  late String userName;
+  late String userEmail;
+  String selectedStatus = 'No Iniciado'; // Estado seleccionado por defecto
+
+  @override
+  void initState() {
+    super.initState();
+    final User? user = FirebaseAuth.instance.currentUser;
+    userName = user?.displayName ?? 'Usuario sin nombre';
+    userEmail = user?.email ?? 'sucorreo@gmail.com';
+  }
+
+  void updateUserName(String newName) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await user.updateDisplayName(newName);
+      await user.reload();
+      setState(() {
+        userName = newName;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nombre actualizado a: $newName')),
+      );
+    }
+  }
+
+  void showUpdateNameDialog() {
+    TextEditingController nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Center(
+          child: Text(
+            'Actualizar Nombre',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                hintText: 'Introduce tu nombre',
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (nameController.text.isNotEmpty) {
+                      updateUserName(nameController.text);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFB1DAA1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text(
+                    'Actualizar',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +137,8 @@ class UserTasksScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left,
-            color: Color(0xFFFFEE93), // Color de la flecha FFEE93
-            size: 45, // Tamaño de la flecha (puedes cambiar este valor)
+            color: Color(0xFFFFEE93),
+            size: 45,
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -30,20 +153,29 @@ class UserTasksScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Información del usuario
-            const Center(
+            Center(
               child: Column(
                 children: [
-                  Text(
-                    'Nombre del usuario',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.grey),
+                        onPressed: showUpdateNameDialog,
+                      ),
+                    ],
                   ),
                   Text(
-                    'sucorreo@gmail.com',
-                    style: TextStyle(
+                    userEmail,
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
@@ -57,7 +189,7 @@ class UserTasksScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Mis Tareas',
+                    'Estado de las tareas',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -69,13 +201,25 @@ class UserTasksScreen extends StatelessWidget {
               ),
             ),
 
-            // Botones de estado de tareas
+            // Botones de estado de tareas estilizados
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatusButton('Tarea', const Color(0xFFB1DAA1)),
-                _buildStatusButton('Desarrollo', const Color(0xFFFFEE93)),
-                _buildStatusButton('Finalizado', const Color(0xFFFF9393)),
+                _buildStyledStatusButton(
+                  'No Iniciado',
+                  Colors.red,
+                  Colors.red,
+                ),
+                _buildStyledStatusButton(
+                  'En desarrollo',
+                  Colors.orange,
+                  Colors.orange,
+                ),
+                _buildStyledStatusButton(
+                  'Finalizado',
+                  Colors.green,
+                  Colors.green,
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -85,7 +229,8 @@ class UserTasksScreen extends StatelessWidget {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('tasks')
-                    .where('userId', isEqualTo: userId)
+                    .where('userId', isEqualTo: widget.userId)
+                    .where('status', isEqualTo: selectedStatus)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -93,24 +238,30 @@ class UserTasksScreen extends StatelessWidget {
                   }
                   if (snapshot.hasError) {
                     return const Center(
-                        child: Text('Error al cargar las tareas.'));
+                      child: Text('Error al cargar las tareas.'),
+                    );
                   }
                   final tasks = snapshot.data?.docs ?? [];
+                  if (tasks.isEmpty) {
+                    return const Center(
+                      child: Text('No hay tareas en este estado.'),
+                    );
+                  }
                   return ListView.builder(
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
                       final task = tasks[index].data() as Map<String, dynamic>;
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: ListTile(
-                          title: Text(task['name'] ?? 'Tarea sin nombre'),
-                          subtitle: Text(task['description'] ?? ''),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.black),
-                            onPressed: () {
-                              // Acción para editar la tarea
-                            },
+                          title: Text(
+                            task['name'] ?? 'Tarea sin nombre',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
+                          subtitle: Text(task['description'] ?? ''),
                         ),
                       );
                     },
@@ -118,80 +269,38 @@ class UserTasksScreen extends StatelessWidget {
                 },
               ),
             ),
-
-            // Tarjeta Nube (estado de conexión y configuración)
-            const SizedBox(height: 16),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFEE93), // Fondo amarillo claro
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'NUBE',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              'Conectado',
-                              style: TextStyle(color: Colors.green),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.circle, color: Colors.green, size: 12),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Resto del código
           ],
         ),
       ),
     );
   }
 
-  // Widget para construir botones de estado de tareas
-  Widget _buildStatusButton(String label, Color color) {
-    return ElevatedButton(
-      onPressed: () {
-        // Acción cuando se presiona el botón de estado
+  // Widget para construir botones estilizados
+  Widget _buildStyledStatusButton(String label, Color borderColor, Color dotColor) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedStatus = label;
+        });
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(20),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
+        child: Row(
+          children: [
+            Icon(Icons.circle, size: 10, color: dotColor),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+

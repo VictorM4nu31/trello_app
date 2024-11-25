@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:logger/logger.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen(
@@ -25,6 +26,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   String? _photoUrl;
   File? _profileImage;
+
+  final Logger logger = Logger();
 
   @override
   void initState() {
@@ -66,6 +69,17 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     User? user = _auth.currentUser;
     if (user != null) {
       try {
+        // Reautenticación
+        if (_passwordController.text.isNotEmpty) {
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: _passwordController.text, // Contraseña actual
+          );
+
+          await user.reauthenticateWithCredential(credential);
+        }
+
+        // Actualizar imagen de perfil
         if (_profileImage != null) {
           final ref = _storage.ref().child('profile_images/${user.uid}');
           await ref.putFile(_profileImage!);
@@ -76,11 +90,17 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           });
         }
 
+        // Actualizar contraseña
         if (_passwordController.text.isNotEmpty) {
           await user.updatePassword(_passwordController.text);
         }
 
-        await user.verifyBeforeUpdateEmail(_emailController.text);
+        // Actualizar correo electrónico
+        if (_emailController.text.isNotEmpty && _emailController.text != user.email) {
+          await user.updateEmail(_emailController.text);
+        }
+
+        // Actualizar nombre y apellidos
         await _firestore.collection('users').doc(user.uid).update({
           'name': _nameController.text,
           'surname': _surnameController.text,
@@ -93,6 +113,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           Navigator.of(context).pop(); // Regresa a la pantalla anterior
         }
       } catch (e) {
+        logger.e('Error al actualizar el perfil: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error al actualizar el perfil')),

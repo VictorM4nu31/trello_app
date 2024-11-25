@@ -49,13 +49,14 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             .get();
 
         setState(() {
-          tasks = snapshot.docs
-              .map((doc) => {
-                    'id': doc.id,
-                    'name': doc['name'],
-                    'description': doc['description']
-                  })
-              .toList();
+          tasks = snapshot.docs.map((doc) => {
+            'id': doc.id,
+            'name': doc['name'],
+            'description': doc['description'],
+            'startDate': doc['startDate']?.toDate(),
+            'endDate': doc['endDate']?.toDate(),
+            'status': doc['status'],
+          }).toList();
         });
       }
     } catch (e) {
@@ -95,6 +96,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         return AddTaskWidget(
           team: widget.team,
           teamMembers: teamMembers,
+          onTaskAdded: () {
+            _fetchTasks();
+            Navigator.of(context).pop();
+          },
         );
       },
     );
@@ -221,44 +226,17 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Campo para el estado
-                const Text('Estado', style: TextStyle(fontSize: 16)),
+                const Text('Estado', style: TextStyle(fontSize: 14)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Estado: Finalizado
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: updatedStatus == 'Finalizado' ? Colors.green : Colors.transparent,
-                        side: BorderSide(color: Colors.green),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          updatedStatus = 'Finalizado';
-                        });
-                      },
-                      child: const Text('Finalizado', style: TextStyle(color: Colors.black)),
-                    ),
-                    
-                    // Estado: En desarrollo
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: updatedStatus == 'En desarrollo' ? Colors.orange : Colors.transparent,
-                        side: BorderSide(color: Colors.orange),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          updatedStatus = 'En desarrollo';
-                        });
-                      },
-                      child: const Text('En desarrollo', style: TextStyle(color: Colors.black)),
-                    ),
-                    
                     // Estado: No Iniciado
                     TextButton(
                       style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
                         backgroundColor: updatedStatus == 'No Iniciado' ? Colors.red : Colors.transparent,
                         side: BorderSide(color: Colors.red),
                       ),
@@ -267,11 +245,41 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                           updatedStatus = 'No Iniciado';
                         });
                       },
-                      child: const Text('No Iniciado', style: TextStyle(color: Colors.black)),
+                      child: const Text('No Iniciado', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
+                    ),
+
+                    // Estado: En desarrollo
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
+                        backgroundColor: updatedStatus == 'En desarrollo' ? Colors.orange : Colors.transparent,
+                        side: BorderSide(color: Colors.orange),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          updatedStatus = 'En desarrollo';
+                        });
+                      },
+                      child: const Text('En desarrollo', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
+                    ),
+
+                    // Estado: Finalizado
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
+                        backgroundColor: updatedStatus == 'Finalizado' ? Colors.green : Colors.transparent,
+                        side: BorderSide(color: Colors.green),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          updatedStatus = 'Finalizado';
+                        });
+                      },
+                      child: const Text('Finalizado', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Botones Aceptar y Cancelar
                 Row(
@@ -405,7 +413,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   ),
                   child: const Text('Cancelar', style: TextStyle(color: Colors.black)),
                   onPressed: () {
-                    Navigator.of(context).pop(); // Cierra el diálogo
+                    Navigator.of(context).pop(); // Cierra el dilogo
                   },
                 ),
               ],
@@ -513,6 +521,90 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
+  void _showAssignedMembersDialog(String? assignedMemberId) async {
+    if (assignedMemberId == null || assignedMemberId.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Miembro Asignado'),
+            content: const Text('No hay miembro asignado a esta tarea.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    try {
+      final userDoc = await _firestore.collection('users').doc(assignedMemberId).get();
+      if (userDoc.exists) {
+        final memberName = userDoc['name'];
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Miembro Asignado'),
+              content: Text('El miembro asignado es: $memberName'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cerrar'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Miembro Asignado'),
+              content: const Text('No se encontró información del miembro asignado.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cerrar'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      logger.e('Error fetching assigned member: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Hubo un error al obtener la información del miembro asignado.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -600,6 +692,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                             ListTile(
                               title: Text(tasks[index]['name']),
                               subtitle: Text(tasks[index]['description'] ?? ''),
+                              onTap: () => _showAssignedMembersDialog(tasks[index]['assignedMemberId']),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -616,15 +709,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                   ),
                                   Container(
                                     decoration: const BoxDecoration(
-                                      color: Color(
-                                          0xFFFF9393), // Color de fondo rosa
+                                      color: Color(0xFFFF9393), // Color de fondo rosa
                                       shape: BoxShape.circle, // Forma circular
                                     ),
                                     child: IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.white),
-                                      onPressed: () =>
-                                          _showDeleteTaskWarning(tasks[index]['id']),
+                                      icon: const Icon(Icons.delete, color: Colors.white),
+                                      onPressed: () => _showDeleteTaskWarning(tasks[index]['id']),
                                     ),
                                   ),
                                 ],

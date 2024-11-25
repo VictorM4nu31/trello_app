@@ -8,9 +8,14 @@ final logger = Logger();
 class AddTaskWidget extends StatefulWidget {
   final Map<String, dynamic> team;
   final List<Map<String, dynamic>> teamMembers;
+  final VoidCallback onTaskAdded;
 
-  const AddTaskWidget(
-      {required this.team, required this.teamMembers, super.key});
+  const AddTaskWidget({
+    Key? key,
+    required this.team,
+    required this.teamMembers,
+    required this.onTaskAdded,
+  }) : super(key: key);
 
   @override
   AddTaskWidgetState createState() => AddTaskWidgetState();
@@ -25,6 +30,31 @@ class AddTaskWidgetState extends State<AddTaskWidget> {
   DateTime? startDate;
   DateTime? endDate;
   String taskStatus = 'Pendiente';
+
+  void _saveTask() async {
+    if (newTask.isNotEmpty) {
+      try {
+        final user = _auth.currentUser;
+        if (user != null) {
+          await _firestore.collection('tasks').add({
+            'name': newTask,
+            'description': newDescription,
+            'teamId': widget.team['id'],
+            'userId': user.uid,
+            'responsibleId': selectedResponsible,
+            'status': taskStatus,
+            'startDate': startDate,
+            'endDate': endDate,
+          });
+
+          widget.onTaskAdded();
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        logger.e('Error adding task: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -202,34 +232,7 @@ class AddTaskWidgetState extends State<AddTaskWidget> {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  onPressed: () async {
-                    if (newTask.isNotEmpty) {
-                      try {
-                        final user = _auth.currentUser;
-                        if (user != null) {
-                          final navigatorContext = context;
-
-                          await _firestore.collection('tasks').add({
-                            'name': newTask,
-                            'description': newDescription,
-                            'teamId': widget.team['id'],
-                            'userId': user.uid,
-                            'responsibleId': selectedResponsible,
-                            'status': taskStatus,
-                            'startDate': startDate,
-                            'endDate': endDate,
-                          });
-
-                          if (mounted) {
-                            // ignore: use_build_context_synchronously
-                            Navigator.of(navigatorContext).pop();
-                          }
-                        }
-                      } catch (e) {
-                        logger.e('Error adding task: $e');
-                      }
-                    }
-                  },
+                  onPressed: _saveTask,
                   child: const Text(
                     'Guardar',
                     style: TextStyle(
