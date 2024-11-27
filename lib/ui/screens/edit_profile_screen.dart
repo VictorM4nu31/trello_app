@@ -135,238 +135,170 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         leading: IconButton(
           icon: const Icon(
             Icons.chevron_left,
-            color: Color(0xFFFFEE93), // Color de la flecha FFEE93
-            size: 45, // Tamaño de la flecha (puedes cambiar este valor)
+            color: Color(0xFFFFEE93),
+            size: 45,
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 10), // Espacio entre el AppBar y el texto
-            const Center(
-              child: Text(
-                'Editar perfil', // Texto centrado
-                style: TextStyle(
-                  fontSize: 20.0, // Tamaño de la fuente
-                  fontWeight: FontWeight.bold, // Texto en negrita
-                ),
-              ),
-            ),
-            const SizedBox(height: 25), // Espacio entre el texto y el avatar
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFFFEE93), // Color del borde
-                    width: 5.0, // Grosor del borde
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(1), // Sombra gris
-                      spreadRadius: 6,
-                      blurRadius: 10,
-                      offset:
-                          const Offset(0, 10), // Desplazamiento de la sombra
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 600), // Limita el ancho máximo
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Editar perfil',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Foto de perfil
+                        Center(
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: constraints.maxWidth * 0.3, // Tamaño responsivo
+                                height: constraints.maxWidth * 0.3,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFFFEE93),
+                                    width: 3,
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child: _buildProfileImage(),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: _buildChangePhotoButton(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Campos de texto
+                        _buildTextField(
+                          controller: _nameController,
+                          label: 'Nombre',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _surnameController,
+                          label: 'Apellidos',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _emailController,
+                          label: 'Correo Electrónico',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: 'Nueva Contraseña',
+                          isPassword: true,
+                        ),
+                        
+                        const SizedBox(height: 32),
+                        
+                        // Botón de actualizar
+                        _buildUpdateButton(),
+                      ],
                     ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 80, // Tamaño del avatar
-                  backgroundImage: _profileImage != null
-                      ? FileImage(_profileImage!)
-                      : (_photoUrl != null ? NetworkImage(_photoUrl!) : null),
-                  backgroundColor: _profileImage == null && _photoUrl == null
-                      ? Colors.grey[300] // Color de fondo si no hay imagen
-                      : null,
-                  child: _profileImage == null && _photoUrl == null
-                      ? const Icon(Icons.camera_alt,
-                          size: 50, color: Colors.white) // Ícono de cámara
-                      : null,
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-
-            const SizedBox(height: 22),
-            const Text(
-              'Cambiar foto', // Texto centrado
-              style: TextStyle(
-                fontSize: 14.0, // Tamaño de la fuente
-                fontWeight: FontWeight.bold, // Texto en negrita
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0), // Bordes redondeados
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8), // Color del borde gris
-                    width: 2.0, // Grosor del borde
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(
-                        40.0), // Bordes redondeados cuando está habilitado
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(
-                        0xFFC4B8B8), // Color del borde gris cuando está habilitado
-                    width: 2.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(
-                        40.0), // Bordes redondeados cuando está enfocado
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(
-                        0xFFC4B8B8), // Color del borde gris cuando está enfocado
-                    width: 2.0,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            TextField(
-              controller: _surnameController,
-              decoration: const InputDecoration(
-                labelText: 'Apellidos',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0), // Bordes redondeados
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8), // Color del borde gris
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo Electrónico',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0), // Bordes redondeados
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8), // Color del borde gris
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Nueva Contraseña',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0), // Bordes redondeados
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8), // Color del borde gris
-                    width: 2.0,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(40.0),
-                  ),
-                  borderSide: BorderSide(
-                    color: Color(0xFFC4B8B8),
-                    width: 2.0,
-                  ),
-                ),
-              ),
-              obscureText: true,
-            ),
-
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: _updateProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB7F6E3), // Color de fondo
-                foregroundColor: const Color(0xFF0D4533), // Color del texto
-                side: const BorderSide(
-                  color: Color(0xFF089A6D), // Color del borde
-                  width: 2.0, // Grosor del borde
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(50.0), // Bordes redondeados
-                ),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 12.0), // Tamaño del botón
-              ),
-              child: const Text('Actualizar'),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    if (_profileImage != null) {
+      return Image.file(_profileImage!, fit: BoxFit.cover);
+    } else if (_photoUrl != null) {
+      return Image.network(_photoUrl!, fit: BoxFit.cover);
+    } else {
+      return const Icon(Icons.camera_alt, size: 50, color: Colors.grey);
+    }
+  }
+
+  Widget _buildChangePhotoButton() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: const BoxDecoration(
+          color: Color(0xFFFFEE93),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.camera_alt, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    bool isPassword = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        labelText: label,
+        border: _buildInputBorder(),
+        enabledBorder: _buildInputBorder(),
+        focusedBorder: _buildInputBorder(),
+      ),
+    );
+  }
+
+  OutlineInputBorder _buildInputBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(40.0),
+      borderSide: const BorderSide(
+        color: Color(0xFFC4B8B8),
+        width: 2.0,
+      ),
+    );
+  }
+
+  Widget _buildUpdateButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _updateProfile,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFB7F6E3),
+          foregroundColor: const Color(0xFF0D4533),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: const BorderSide(
+              color: Color(0xFF089A6D),
+              width: 2.0,
+            ),
+          ),
+        ),
+        child: const Text('Actualizar', style: TextStyle(fontSize: 16)),
       ),
     );
   }

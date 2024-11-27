@@ -19,6 +19,7 @@ class TeamService {
           'userId': currentUser.uid,
           'createdAt': FieldValue.serverTimestamp(),
           'color': color.value, // Guardar el color como valor hexadecimal
+          'members': selectedMembers, // Agregar los miembros al crear el equipo
         });
         return docRef.id; // Devuelve el ID del documento creado
       }
