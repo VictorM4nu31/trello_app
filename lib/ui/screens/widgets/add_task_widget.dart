@@ -11,11 +11,11 @@ class AddTaskWidget extends StatefulWidget {
   final VoidCallback onTaskAdded;
 
   const AddTaskWidget({
-    Key? key,
+    super.key,
     required this.team,
     required this.teamMembers,
     required this.onTaskAdded,
-  }) : super(key: key);
+  });
 
   @override
   AddTaskWidgetState createState() => AddTaskWidgetState();
@@ -48,6 +48,7 @@ class AddTaskWidgetState extends State<AddTaskWidget> {
           });
 
           widget.onTaskAdded();
+          // ignore: use_build_context_synchronously
           Navigator.of(context).pop();
         }
       } catch (e) {

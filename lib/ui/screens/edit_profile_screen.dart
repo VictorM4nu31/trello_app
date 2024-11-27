@@ -97,7 +97,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
         // Actualizar correo electrónico
         if (_emailController.text.isNotEmpty && _emailController.text != user.email) {
-          await user.updateEmail(_emailController.text);
+          await user.verifyBeforeUpdateEmail(_emailController.text);
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Se ha enviado un correo de verificación. Por favor, verifique su nuevo correo electrónico.')),
+          );
         }
 
         // Actualizar nombre y apellidos

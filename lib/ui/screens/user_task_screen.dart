@@ -8,10 +8,10 @@ class UserTasksScreen extends StatefulWidget {
   const UserTasksScreen({super.key, required this.userId});
 
   @override
-  _UserTasksScreenState createState() => _UserTasksScreenState();
+  UserTasksScreenState createState() => UserTasksScreenState();
 }
 
-class _UserTasksScreenState extends State<UserTasksScreen> {
+class UserTasksScreenState extends State<UserTasksScreen> {
   late String userName;
   late String userEmail;
   String selectedStatus = 'No Iniciado'; // Estado seleccionado por defecto
@@ -33,6 +33,7 @@ class _UserTasksScreenState extends State<UserTasksScreen> {
       setState(() {
         userName = newName;
       });
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Nombre actualizado a: $newName')),
       );

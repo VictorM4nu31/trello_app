@@ -74,7 +74,7 @@ class TaskScreenState extends State<TaskScreen> {
     }
   }
 
-  Future<String?> _getProfileImageUrl() async {
+  Future<String?> getProfileImageUrl() async {
     User? user = _auth.currentUser;
     if (user != null) {
       try {

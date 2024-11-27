@@ -102,7 +102,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      if (context.mounted) {
+        // Aquí puedes realizar acciones adicionales si es necesario
+      }
+    });
   }
 
   void _updateTask(
@@ -238,7 +242,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
                         backgroundColor: updatedStatus == 'No Iniciado' ? Colors.red : Colors.transparent,
-                        side: BorderSide(color: Colors.red),
+                        side: const BorderSide(color: Colors.red),
                       ),
                       onPressed: () {
                         setState(() {
@@ -253,7 +257,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
                         backgroundColor: updatedStatus == 'En desarrollo' ? Colors.orange : Colors.transparent,
-                        side: BorderSide(color: Colors.orange),
+                        side: const BorderSide(color: Colors.orange),
                       ),
                       onPressed: () {
                         setState(() {
@@ -268,7 +272,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
                         backgroundColor: updatedStatus == 'Finalizado' ? Colors.green : Colors.transparent,
-                        side: BorderSide(color: Colors.green),
+                        side: const BorderSide(color: Colors.green),
                       ),
                       onPressed: () {
                         setState(() {
@@ -368,15 +372,15 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          title: Column(
+          title: const Column(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 30,
                 backgroundColor: Color(0xFFFF9393), // Color de fondo
                 child: Icon(Icons.delete, color: Colors.white), // Ícono de papelera
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 '¿Desea eliminar la tarea?',
                 style: TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
@@ -401,7 +405,9 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   child: const Text('Aceptar', style: TextStyle(color: Colors.black)),
                   onPressed: () async {
                     await _deleteTask(taskId); // Llama al método de eliminación
-                    Navigator.of(context).pop(); // Cierra el diálogo
+                    if (context.mounted) { // Verifica si el contexto sigue montado
+                      Navigator.of(context).pop(); // Cierra el diálogo
+                    }
                   },
                 ),
                 TextButton(
@@ -548,6 +554,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       if (userDoc.exists) {
         final memberName = userDoc['name'];
         showDialog(
+          // ignore: use_build_context_synchronously
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -566,6 +573,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         );
       } else {
         showDialog(
+          // ignore: use_build_context_synchronously
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -586,6 +594,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     } catch (e) {
       logger.e('Error fetching assigned member: $e');
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
