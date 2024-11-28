@@ -45,7 +45,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         final snapshot = await _firestore
             .collection('tasks')
             .where('teamId', isEqualTo: widget.team['id'])
-            .where('userId', isEqualTo: user.uid)
+            .where('responsibleId', isEqualTo: user.uid)
             .get();
 
         setState(() {
