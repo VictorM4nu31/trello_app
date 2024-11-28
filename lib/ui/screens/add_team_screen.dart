@@ -51,6 +51,7 @@ class AddTeamScreenState extends State<AddTeamScreen> {
           if (!allMembers.contains(currentUser.uid)) {
             allMembers.add(currentUser.uid);
           }
+_logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
 
           final teamId = await _teamService.createTeam(
             _teamName,

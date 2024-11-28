@@ -9,7 +9,6 @@ import 'package:app_tareas/ui/screens/add_task_screen.dart'; // Importa la nueva
 import 'package:app_tareas/ui/screens/add_team_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
 
@@ -39,24 +38,28 @@ class TaskScreenState extends State<TaskScreen> {
   Future<void> _fetchTeams() async {
     try {
       if (_currentUser != null) {
-        final snapshot = await _firestore
-            .collection('teams')
-            .where('userId', isEqualTo: _currentUser!.uid)
-            .get();
+        _logger.i('Usuario actual: ${_currentUser!.uid}');
+        final snapshot = await _firestore.collection('teams').get();
+        _logger.i('Número de equipos recuperados: ${snapshot.docs.length}');
 
         setState(() {
-          _teams = snapshot.docs.map((doc) {
+          _teams = snapshot.docs.where((doc) {
             var data = doc.data();
+            _logger.i('Equipo: ${doc.id}, Miembros: ${data['members']}');
+            List<dynamic>? members = data['members'];
+            return members != null && members.contains(_currentUser!.uid);
+          }).map((doc) {
             return {
-              'id': doc.id, // Asegúrate de incluir el ID del documento
-              ...data,
+              'id': doc.id,
+              ...doc.data(),
             };
           }).toList();
           _isLoading = false;
+          _logger.i('Equipos encontrados para el usuario: ${_teams.length}');
         });
       }
     } catch (e) {
-      _logger.e('Error fetching teams: $e'); // Reemplazamos 'print' con logger
+      _logger.e('Error fetching teams: $e');
     }
   }
 
@@ -129,7 +132,9 @@ class TaskScreenState extends State<TaskScreen> {
                     backgroundImage: userData['photoUrl'] != null
                         ? NetworkImage(userData['photoUrl'])
                         : null,
-                    child: userData['photoUrl'] == null ? const Icon(Icons.person) : null,
+                    child: userData['photoUrl'] == null
+                        ? const Icon(Icons.person)
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -185,28 +190,36 @@ class TaskScreenState extends State<TaskScreen> {
           : _teams.isEmpty
               ? const Center(child: Text('No tienes equipos.'))
               : Padding(
-                  padding: const EdgeInsets.all(18.0), // Añade un padding al body
+                  padding:
+                      const EdgeInsets.all(18.0), // Añade un padding al body
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Alinea el texto a la izquierda
+                    crossAxisAlignment: CrossAxisAlignment
+                        .start, // Alinea el texto a la izquierda
                     children: [
                       const Text(
                         'Aquí puedes ver tus equipos:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Estilo del texto
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold), // Estilo del texto
                       ),
-                      const SizedBox(height: 16), // Espacio entre el texto y la lista
+                      const SizedBox(
+                          height: 16), // Espacio entre el texto y la lista
                       Expanded(
                         child: ListView.builder(
                           itemCount: _teams.length,
                           itemBuilder: (context, index) {
                             final team = _teams[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 16.0),
                               child: Card(
                                 color: Color(team['color'] ?? 0xFFFFFFFF),
                                 child: ListTile(
                                   title: Text(
                                     team['name'] ?? 'Nombre del Equipo',
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -216,11 +229,14 @@ class TaskScreenState extends State<TaskScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => AddTaskScreen(
+                                              builder: (context) =>
+                                                  AddTaskScreen(
                                                 team: {
-                                                  'id': team['id'], // Asegúrate de pasar el ID del equipo
+                                                  'id': team[
+                                                      'id'], // Asegúrate de pasar el ID del equipo
                                                   'name': team['name'],
-                                                  'members': team['members'] ?? [],
+                                                  'members':
+                                                      team['members'] ?? [],
                                                   'color': team['color'],
                                                 },
                                               ),
@@ -231,11 +247,14 @@ class TaskScreenState extends State<TaskScreen> {
                                       ),
                                       IconButton(
                                         icon: const CircleAvatar(
-                                          radius: 24, // Ajusta el tamaño del círculo
-                                          backgroundColor: Color(0xFFF28C8C), // Color rosado de fondo
+                                          radius:
+                                              24, // Ajusta el tamaño del círculo
+                                          backgroundColor: Color(
+                                              0xFFF28C8C), // Color rosado de fondo
                                           child: Icon(
                                             Icons.delete,
-                                            color: Colors.white, // Color blanco del ícono
+                                            color: Colors
+                                                .white, // Color blanco del ícono
                                             size: 24, // Tamaño del ícono
                                           ),
                                         ),
@@ -245,31 +264,38 @@ class TaskScreenState extends State<TaskScreen> {
                                             builder: (BuildContext context) {
                                               return Dialog(
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(20.0),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
                                                 ),
                                                 child: Padding(
-                                                  padding: const EdgeInsets.all(20.0),
+                                                  padding: const EdgeInsets.all(
+                                                      20.0),
                                                   child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: <Widget>[
                                                       // Icono de papelera grande
                                                       const CircleAvatar(
                                                         radius: 40,
-                                                        backgroundColor: Color(0xFFFF9393),
+                                                        backgroundColor:
+                                                            Color(0xFFFF9393),
                                                         child: Icon(
                                                           Icons.delete,
                                                           size: 40,
                                                           color: Colors.white,
                                                         ),
                                                       ),
-                                                      const SizedBox(height: 16),
+                                                      const SizedBox(
+                                                          height: 16),
 
                                                       // Título de la alerta
                                                       const Text(
                                                         '¿Desea eliminar el equipo?',
                                                         style: TextStyle(
                                                           fontSize: 20,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           color: Colors.black,
                                                         ),
                                                       ),
@@ -278,56 +304,88 @@ class TaskScreenState extends State<TaskScreen> {
                                                       // Descripción de la alerta
                                                       const Text(
                                                         'Recuerda que el equipo eliminado, no se podrá recuperar.',
-                                                        textAlign: TextAlign.center,
+                                                        textAlign:
+                                                            TextAlign.center,
                                                         style: TextStyle(
                                                           fontSize: 14,
-                                                          color: Color(0xFFB4B4B4),
+                                                          color:
+                                                              Color(0xFFB4B4B4),
                                                         ),
                                                       ),
-                                                      const SizedBox(height: 24),
+                                                      const SizedBox(
+                                                          height: 24),
 
                                                       // Botones Aceptar y Cancelar
                                                       Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
                                                         children: [
                                                           Expanded(
                                                             child: TextButton(
-                                                              style: TextButton.styleFrom(
-                                                                backgroundColor: const Color(0xFFC8E2B3), // Color de fondo verde
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(20.0),
+                                                              style: TextButton
+                                                                  .styleFrom(
+                                                                backgroundColor:
+                                                                    const Color(
+                                                                        0xFFC8E2B3), // Color de fondo verde
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              20.0),
                                                                 ),
                                                               ),
                                                               child: const Text(
                                                                 'Aceptar',
-                                                                style: TextStyle(
-                                                                  color: Colors.black,
-                                                                  fontWeight: FontWeight.bold,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
                                                                 ),
                                                               ),
                                                               onPressed: () {
-                                                                Navigator.of(context).pop(true);
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(true);
                                                               },
                                                             ),
                                                           ),
-                                                          const SizedBox(width: 16),
+                                                          const SizedBox(
+                                                              width: 16),
                                                           Expanded(
                                                             child: TextButton(
-                                                              style: TextButton.styleFrom(
-                                                                backgroundColor: const Color(0xFFC6C6C6), // Color de fondo gris
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(20.0),
+                                                              style: TextButton
+                                                                  .styleFrom(
+                                                                backgroundColor:
+                                                                    const Color(
+                                                                        0xFFC6C6C6), // Color de fondo gris
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              20.0),
                                                                 ),
                                                               ),
                                                               child: const Text(
                                                                 'Cancelar',
-                                                                style: TextStyle(
-                                                                  color: Colors.black,
-                                                                  fontWeight: FontWeight.bold,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
                                                                 ),
                                                               ),
                                                               onPressed: () {
-                                                                Navigator.of(context).pop(false);
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(false);
                                                               },
                                                             ),
                                                           ),
@@ -341,7 +399,8 @@ class TaskScreenState extends State<TaskScreen> {
                                           );
 
                                           if (confirmDelete) {
-                                            await _deleteTeam(team['id']); // Asegúrate de que team['id'] no sea nulo
+                                            await _deleteTeam(team[
+                                                'id']); // Asegúrate de que team['id'] no sea nulo
                                           }
                                         },
                                       ),
@@ -376,7 +435,8 @@ class TaskScreenState extends State<TaskScreen> {
         shape: const CircleBorder(), // Color del icono blanco
         child: const Icon(Icons.add), // Asegura que sea completamente redondo
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, // Botón centrado
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerFloat, // Botón centrado
     );
   }
 }

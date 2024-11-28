@@ -25,6 +25,7 @@ class TeamService {
       }
     } catch (e) {
       _logger.e('Error al crear el equipo: $e');
+      _logger.i('Creando equipo con los siguientes miembros: $selectedMembers');
     }
     return null; // Devuelve null si hay un error
   }
