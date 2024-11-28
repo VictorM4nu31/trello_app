@@ -209,6 +209,8 @@ class TaskScreenState extends State<TaskScreen> {
                           itemCount: _teams.length,
                           itemBuilder: (context, index) {
                             final team = _teams[index];
+                            final bool isCreator = team['userId'] == _currentUser!.uid;
+
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                   vertical: 8.0, horizontal: 16.0),
@@ -258,151 +260,153 @@ class TaskScreenState extends State<TaskScreen> {
                                             size: 24, // Tamaño del ícono
                                           ),
                                         ),
-                                        onPressed: () async {
-                                          bool confirmDelete = await showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return Dialog(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      20.0),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: <Widget>[
-                                                      // Icono de papelera grande
-                                                      const CircleAvatar(
-                                                        radius: 40,
-                                                        backgroundColor:
-                                                            Color(0xFFFF9393),
-                                                        child: Icon(
-                                                          Icons.delete,
-                                                          size: 40,
-                                                          color: Colors.white,
-                                                        ),
+                                        onPressed: isCreator
+                                            ? () async {
+                                                bool confirmDelete = await showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return Dialog(
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                20.0),
                                                       ),
-                                                      const SizedBox(
-                                                          height: 16),
-
-                                                      // Título de la alerta
-                                                      const Text(
-                                                        '¿Desea eliminar el equipo?',
-                                                        style: TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 8),
-
-                                                      // Descripción de la alerta
-                                                      const Text(
-                                                        'Recuerda que el equipo eliminado, no se podrá recuperar.',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              Color(0xFFB4B4B4),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 24),
-
-                                                      // Botones Aceptar y Cancelar
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Expanded(
-                                                            child: TextButton(
-                                                              style: TextButton
-                                                                  .styleFrom(
-                                                                backgroundColor:
-                                                                    const Color(
-                                                                        0xFFC8E2B3), // Color de fondo verde
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              20.0),
-                                                                ),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(
+                                                            20.0),
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: <Widget>[
+                                                            // Icono de papelera grande
+                                                            const CircleAvatar(
+                                                              radius: 40,
+                                                              backgroundColor:
+                                                                  Color(0xFFFF9393),
+                                                              child: Icon(
+                                                                Icons.delete,
+                                                                size: 40,
+                                                                color: Colors.white,
                                                               ),
-                                                              child: const Text(
-                                                                'Aceptar',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(true);
-                                                              },
                                                             ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 16),
-                                                          Expanded(
-                                                            child: TextButton(
-                                                              style: TextButton
-                                                                  .styleFrom(
-                                                                backgroundColor:
-                                                                    const Color(
-                                                                        0xFFC6C6C6), // Color de fondo gris
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              20.0),
-                                                                ),
-                                                              ),
-                                                              child: const Text(
-                                                                'Cancelar',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
-                                                              ),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop(false);
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
+                                                            const SizedBox(
+                                                                height: 16),
 
-                                          if (confirmDelete) {
-                                            await _deleteTeam(team[
-                                                'id']); // Asegúrate de que team['id'] no sea nulo
-                                          }
-                                        },
+                                                            // Título de la alerta
+                                                            const Text(
+                                                              '¿Desea eliminar el equipo?',
+                                                              style: TextStyle(
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight.bold,
+                                                                color: Colors.black,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(height: 8),
+
+                                                            // Descripción de la alerta
+                                                            const Text(
+                                                              'Recuerda que el equipo eliminado, no se podrá recuperar.',
+                                                              textAlign:
+                                                                  TextAlign.center,
+                                                              style: TextStyle(
+                                                                fontSize: 14,
+                                                                color:
+                                                                    Color(0xFFB4B4B4),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 24),
+
+                                                            // Botones Aceptar y Cancelar
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: TextButton(
+                                                                    style: TextButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          const Color(
+                                                                              0xFFC8E2B3), // Color de fondo verde
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius
+                                                                                .circular(
+                                                                                    20.0),
+                                                                      ),
+                                                                    ),
+                                                                    child: const Text(
+                                                                      'Aceptar',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                      ),
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(true);
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 16),
+                                                                Expanded(
+                                                                  child: TextButton(
+                                                                    style: TextButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          const Color(
+                                                                              0xFFC6C6C6), // Color de fondo gris
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius
+                                                                                .circular(
+                                                                                    20.0),
+                                                                      ),
+                                                                    ),
+                                                                    child: const Text(
+                                                                      'Cancelar',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                      ),
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(false);
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+
+                                                if (confirmDelete) {
+                                                  await _deleteTeam(team[
+                                                      'id']); // Asegúrate de que team['id'] no sea nulo
+                                                }
+                                              }
+                                            : null,
                                       ),
                                     ],
                                   ),
