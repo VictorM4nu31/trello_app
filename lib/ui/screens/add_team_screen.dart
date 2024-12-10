@@ -44,14 +44,14 @@ class AddTeamScreenState extends State<AddTeamScreen> {
       try {
         User? currentUser = FirebaseAuth.instance.currentUser;
         if (currentUser != null) {
-          List<String> allMembers = _selectedMembers
-              .map((member) => member.uid)
-              .toList();
-          
+          List<String> allMembers =
+              _selectedMembers.map((member) => member.uid).toList();
+
           if (!allMembers.contains(currentUser.uid)) {
             allMembers.add(currentUser.uid);
           }
-_logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
+          _logger.i(
+              'Miembros seleccionados antes de crear el equipo: $allMembers');
 
           final teamId = await _teamService.createTeam(
             _teamName,
@@ -79,7 +79,8 @@ _logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, completa todos los campos.')),
+          const SnackBar(
+              content: Text('Por favor, completa todos los campos.')),
         );
       }
     }
@@ -134,18 +135,18 @@ _logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
                 // Campos de texto
                 _buildTextField('Nombre del equipo', (value) {
                   setState(() => _teamName = value);
-                }),
+                }, hintText: 'Introduce el nombre del equipo'),
                 const SizedBox(height: 16),
                 _buildTextField('Descripción del proyecto', (value) {
                   setState(() => _projectDescription = value);
-                }),
+                }, hintText: 'Introduce la descripción del proyecto'),
                 const SizedBox(height: 16),
 
                 // Búsqueda de miembros
                 _buildTextField('Agregar miembros', (value) {
                   setState(() => _searchQuery = value);
                   _searchUsers();
-                }),
+                }, hintText: 'Buscar por nombre'),
 
                 // Lista de resultados de búsqueda
                 Container(
@@ -190,7 +191,8 @@ _logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
     );
   }
 
-  Widget _buildTextField(String label, Function(String) onChanged) {
+  Widget _buildTextField(String label, Function(String) onChanged,
+      {String hintText = ''}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,6 +207,7 @@ _logger.i('Miembros seleccionados antes de crear el equipo: $allMembers');
         TextField(
           onChanged: onChanged,
           decoration: InputDecoration(
+            hintText: hintText,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: const BorderSide(

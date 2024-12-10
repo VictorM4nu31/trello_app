@@ -5,7 +5,6 @@ import 'package:logger/logger.dart';
 import 'package:app_tareas/ui/screens/widgets/add_task_widget.dart';
 import 'package:intl/intl.dart';
 
-
 final logger = Logger();
 
 class AddTaskScreen extends StatefulWidget {
@@ -49,14 +48,16 @@ class AddTaskScreenState extends State<AddTaskScreen> {
             .get();
 
         setState(() {
-          tasks = snapshot.docs.map((doc) => {
-            'id': doc.id,
-            'name': doc['name'],
-            'description': doc['description'],
-            'startDate': doc['startDate']?.toDate(),
-            'endDate': doc['endDate']?.toDate(),
-            'status': doc['status'],
-          }).toList();
+          tasks = snapshot.docs
+              .map((doc) => {
+                    'id': doc.id,
+                    'name': doc['name'],
+                    'description': doc['description'],
+                    'startDate': doc['startDate']?.toDate(),
+                    'endDate': doc['endDate']?.toDate(),
+                    'status': doc['status'],
+                  })
+              .toList();
         });
       }
     } catch (e) {
@@ -109,11 +110,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     });
   }
 
-  void _updateTask(
-      String taskId, String currentName, String currentDescription, DateTime? startDate, DateTime? endDate, String? currentStatus) {
+  void _updateTask(String taskId, String currentName, String currentDescription,
+      DateTime? startDate, DateTime? endDate, String? currentStatus) {
     showDialog(
       context: context,
-      builder: (BuildContext context) { 
+      builder: (BuildContext context) {
         String updatedTask = currentName;
         String updatedDescription = currentDescription;
         DateTime? updatedStartDate = startDate;
@@ -176,9 +177,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 const Text('Fecha de inicio', style: TextStyle(fontSize: 16)),
                 TextField(
                   readOnly: true,
-                  controller: TextEditingController(text: updatedStartDate != null ? DateFormat('yyyy-MM-dd').format(updatedStartDate) : ''), // Formato de fecha
+                  controller: TextEditingController(
+                      text: updatedStartDate != null
+                          ? DateFormat('yyyy-MM-dd').format(updatedStartDate)
+                          : ''), // Formato de fecha
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
+                    prefixIcon: const Icon(
+                        Icons.calendar_today), // Ícono del calendario
                     filled: true,
                     fillColor: const Color(0xFFF0EEEE), // Color de fondo
                     border: OutlineInputBorder(
@@ -189,13 +194,16 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: updatedStartDate ?? DateTime.now(), // Usa la fecha existente o la fecha actual
+                      initialDate: updatedStartDate ??
+                          DateTime
+                              .now(), // Usa la fecha existente o la fecha actual
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
                       setState(() {
-                        updatedStartDate = pickedDate; // Actualiza solo si se selecciona una nueva fecha
+                        updatedStartDate =
+                            pickedDate; // Actualiza solo si se selecciona una nueva fecha
                       });
                     }
                   },
@@ -206,9 +214,13 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 const Text('Fecha de fin', style: TextStyle(fontSize: 16)),
                 TextField(
                   readOnly: true,
-                  controller: TextEditingController(text: updatedEndDate != null ? DateFormat('yyyy-MM-dd').format(updatedEndDate) : ''), // Formato de fecha
+                  controller: TextEditingController(
+                      text: updatedEndDate != null
+                          ? DateFormat('yyyy-MM-dd').format(updatedEndDate)
+                          : ''), // Formato de fecha
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.calendar_today), // Ícono del calendario
+                    prefixIcon: const Icon(
+                        Icons.calendar_today), // Ícono del calendario
                     filled: true,
                     fillColor: const Color(0xFFF0EEEE), // Color de fondo
                     border: OutlineInputBorder(
@@ -219,13 +231,16 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: updatedEndDate ?? DateTime.now(), // Usa la fecha existente o la fecha actual
+                      initialDate: updatedEndDate ??
+                          DateTime
+                              .now(), // Usa la fecha existente o la fecha actual
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
                       setState(() {
-                        updatedEndDate = pickedDate; // Actualiza solo si se selecciona una nueva fecha
+                        updatedEndDate =
+                            pickedDate; // Actualiza solo si se selecciona una nueva fecha
                       });
                     }
                   },
@@ -240,8 +255,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                     // Estado: No Iniciado
                     TextButton(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
-                        backgroundColor: updatedStatus == 'No Iniciado' ? Colors.red : Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3), // Reducir el padding
+                        backgroundColor: updatedStatus == 'No Iniciado'
+                            ? Colors.red
+                            : Colors.transparent,
                         side: const BorderSide(color: Colors.red),
                       ),
                       onPressed: () {
@@ -249,14 +267,20 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                           updatedStatus = 'No Iniciado';
                         });
                       },
-                      child: const Text('No Iniciado', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
+                      child: const Text('No Iniciado',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10)), // Reducir el tamaño del texto
                     ),
 
                     // Estado: En desarrollo
                     TextButton(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
-                        backgroundColor: updatedStatus == 'En desarrollo' ? Colors.orange : Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3), // Reducir el padding
+                        backgroundColor: updatedStatus == 'En desarrollo'
+                            ? Colors.orange
+                            : Colors.transparent,
                         side: const BorderSide(color: Colors.orange),
                       ),
                       onPressed: () {
@@ -264,14 +288,20 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                           updatedStatus = 'En desarrollo';
                         });
                       },
-                      child: const Text('En desarrollo', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
+                      child: const Text('En desarrollo',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10)), // Reducir el tamaño del texto
                     ),
 
                     // Estado: Finalizado
                     TextButton(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Reducir el padding
-                        backgroundColor: updatedStatus == 'Finalizado' ? Colors.green : Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3), // Reducir el padding
+                        backgroundColor: updatedStatus == 'Finalizado'
+                            ? Colors.green
+                            : Colors.transparent,
                         side: const BorderSide(color: Colors.green),
                       ),
                       onPressed: () {
@@ -279,7 +309,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                           updatedStatus = 'Finalizado';
                         });
                       },
-                      child: const Text('Finalizado', style: TextStyle(color: Colors.black, fontSize: 10)), // Reducir el tamaño del texto
+                      child: const Text('Finalizado',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10)), // Reducir el tamaño del texto
                     ),
                   ],
                 ),
@@ -302,7 +335,10 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         onPressed: () async {
                           if (updatedTask.isNotEmpty) {
                             try {
-                              await _firestore.collection('tasks').doc(taskId).update({
+                              await _firestore
+                                  .collection('tasks')
+                                  .doc(taskId)
+                                  .update({
                                 'name': updatedTask,
                                 'description': updatedDescription,
                                 'startDate': updatedStartDate,
@@ -310,9 +346,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                 'status': updatedStatus,
                               });
                               setState(() {
-                                final index = tasks.indexWhere((task) => task['id'] == taskId);
+                                final index = tasks
+                                    .indexWhere((task) => task['id'] == taskId);
                                 tasks[index]['name'] = updatedTask;
-                                tasks[index]['description'] = updatedDescription;
+                                tasks[index]['description'] =
+                                    updatedDescription;
                                 tasks[index]['startDate'] = updatedStartDate;
                                 tasks[index]['endDate'] = updatedEndDate;
                                 tasks[index]['status'] = updatedStatus;
@@ -377,7 +415,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Color(0xFFFF9393), // Color de fondo
-                child: Icon(Icons.delete, color: Colors.white), // Ícono de papelera
+                child: Icon(Icons.delete,
+                    color: Colors.white), // Ícono de papelera
               ),
               SizedBox(height: 10),
               Text(
@@ -402,10 +441,12 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  child: const Text('Aceptar', style: TextStyle(color: Colors.black)),
+                  child: const Text('Aceptar',
+                      style: TextStyle(color: Colors.black)),
                   onPressed: () async {
                     await _deleteTask(taskId); // Llama al método de eliminación
-                    if (context.mounted) { // Verifica si el contexto sigue montado
+                    if (context.mounted) {
+                      // Verifica si el contexto sigue montado
                       Navigator.of(context).pop(); // Cierra el diálogo
                     }
                   },
@@ -417,7 +458,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  child: const Text('Cancelar', style: TextStyle(color: Colors.black)),
+                  child: const Text('Cancelar',
+                      style: TextStyle(color: Colors.black)),
                   onPressed: () {
                     Navigator.of(context).pop(); // Cierra el dilogo
                   },
@@ -550,7 +592,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
     }
 
     try {
-      final userDoc = await _firestore.collection('users').doc(assignedMemberId).get();
+      final userDoc =
+          await _firestore.collection('users').doc(assignedMemberId).get();
       if (userDoc.exists) {
         final memberName = userDoc['name'];
         showDialog(
@@ -578,7 +621,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Miembro Asignado'),
-              content: const Text('No se encontró información del miembro asignado.'),
+              content: const Text(
+                  'No se encontró información del miembro asignado.'),
               actions: <Widget>[
                 TextButton(
                   child: const Text('Cerrar'),
@@ -599,7 +643,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text('Hubo un error al obtener la información del miembro asignado.'),
+            content: const Text(
+                'Hubo un error al obtener la información del miembro asignado.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('Cerrar'),
@@ -701,7 +746,8 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                             ListTile(
                               title: Text(tasks[index]['name']),
                               subtitle: Text(tasks[index]['description'] ?? ''),
-                              onTap: () => _showAssignedMembersDialog(tasks[index]['assignedMemberId']),
+                              onTap: () => _showAssignedMembersDialog(
+                                  tasks[index]['assignedMemberId']),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -718,12 +764,15 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                                   ),
                                   Container(
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFFF9393), // Color de fondo rosa
+                                      color: Color(
+                                          0xFFFF9393), // Color de fondo rosa
                                       shape: BoxShape.circle, // Forma circular
                                     ),
                                     child: IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.white),
-                                      onPressed: () => _showDeleteTaskWarning(tasks[index]['id']),
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.white),
+                                      onPressed: () => _showDeleteTaskWarning(
+                                          tasks[index]['id']),
                                     ),
                                   ),
                                 ],
@@ -835,7 +884,7 @@ class AddMemberDialogState extends State<AddMemberDialog> {
                   }
                 },
                 decoration: const InputDecoration(
-                  hintText: "Ingresar correo",
+                  hintText: "Buscar por nombre",
                   border: InputBorder.none,
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
